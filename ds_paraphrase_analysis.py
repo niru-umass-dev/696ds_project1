@@ -20,19 +20,26 @@ models = [
         'short_name': 'parrot'
     }
 ]
+device = torch.device("cpu" if torch.cuda.is_available() else "cpu")
 
 
 def generate_sentences(input_sentence: str, model, tokenizer):
+    global device
     batch = tokenizer(input_sentence, return_tensors='pt')
-    generated_ids = model.generate(batch['input_ids'], max_new_tokens=512)
-    return tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
+    model.to(device)
+    batch['input_ids'].to(device)
+    # print(device)
+    with torch.no_grad():
+        generated_ids = model.generate(batch['input_ids'], max_new_tokens=512)
+        generated_sentence = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
+    return generated_sentence
 
 
 def combine_data():
     annotations = json.load(open('./anno.json', 'r'))
     restructured_data = []
     for split in annotations:
-        print(f"split = {split}")
+        # print(f"split = {split}")
         for example in annotations[split]:
             restructured_item = dict()
             restructured_item['split'] = split
@@ -51,11 +58,11 @@ def combine_data():
 
     for split in generated_cont:
         split_indices = [i for i, x in enumerate(restructured_data) if x['split'] == split]
-        print(split_indices)
+        # print(split_indices)
         restructured_split = []
         for idx in range(0, len(generated_cont[split]), 2):
             orig_idx = split_indices[idx // 2]
-            print(f"orig_idx = {orig_idx}")
+            # print(f"orig_idx = {orig_idx}")
             restructured_item = restructured_data[orig_idx]
 
             gen_example = generated_cont[split][idx]
@@ -77,23 +84,28 @@ def combine_data():
                                                                                         split_indices[-1] + 1:]
 
     for model_obj in models:
-        model = model_obj['imported_model'].from_pretrained(model_obj['name'])
+        model = model_obj['imported_model'].from_pretrained(model_obj['name']).to(device)
+        print(model.generation_config)
+        model.generation_config.update(kwargs = {'max_length': 512})
+        print(model.generation_config)
         tokenizer = model_obj['tokenizer'].from_pretrained(model_obj['name'])
         # generation_config = GenerationConfig.from_pretrained(model_obj['name'], max_new_tokens=512)
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        model = model.to(device)
+        
 
         for idx, example in enumerate(restructured_data):
+            
             ref_groups = ['refs_a', 'refs_b', 'refs_comm', 'gen_a', 'gen_b', 'gen_comm']
             for group in ref_groups[:3]:
-                example[f"para_{group}"] = []
+                key = f"para_{group}_{model_obj['short_name']}"
+                example[key] = [] if key not in example else example[key]
                 input_sentences = example[group]
                 for input_sentence in input_sentences:
                     example[f"para_{group}_{model_obj['short_name']}"].append(generate_sentences(input_sentence, model, tokenizer))
 
             if example['split'] != 'train':
                 for group in ref_groups[3:]:
-                    example[f"para_{group}"] = []
+                    key = f"para_{group}_{model_obj['short_name']}"
+                    example[key] = [] if key not in example else example[key]
                     input_sentences = example[group]
                     for input_sentence in input_sentences:
                         example[f"para_{group}_{model_obj['short_name']}"].append(generate_sentences(input_sentence, model, tokenizer))
