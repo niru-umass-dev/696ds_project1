@@ -82,38 +82,67 @@ def combine_data():
         # print(split_indices[-1] + 1)
         restructured_data = restructured_data[:split_indices[0]] + restructured_split + restructured_data[
                                                                                         split_indices[-1] + 1:]
+        
+        return restructured_data
 
-    for model_obj in models:
-        model = model_obj['imported_model'].from_pretrained(model_obj['name']).to(device)
-        print(model.generation_config)
-        model.generation_config.update(kwargs = {'max_length': 512})
-        print(model.generation_config)
-        tokenizer = model_obj['tokenizer'].from_pretrained(model_obj['name'])
-        # generation_config = GenerationConfig.from_pretrained(model_obj['name'], max_new_tokens=512)
+#     for model_obj in models:
+#         model = model_obj['imported_model'].from_pretrained(model_obj['name']).to(device)
+#         print(model.generation_config)
+#         model.generation_config.update(kwargs = {'max_length': 512})
+#         print(model.generation_config)
+#         tokenizer = model_obj['tokenizer'].from_pretrained(model_obj['name'])
+#         # generation_config = GenerationConfig.from_pretrained(model_obj['name'], max_new_tokens=512)
         
 
-        for idx, example in enumerate(restructured_data):
+#         for idx, example in enumerate(restructured_data):
             
-            ref_groups = ['refs_a', 'refs_b', 'refs_comm', 'gen_a', 'gen_b', 'gen_comm']
-            for group in ref_groups[:3]:
-                key = f"para_{group}_{model_obj['short_name']}"
-                example[key] = [] if key not in example else example[key]
-                input_sentences = example[group]
-                for input_sentence in input_sentences:
-                    example[f"para_{group}_{model_obj['short_name']}"].append(generate_sentences(input_sentence, model, tokenizer))
+#             ref_groups = ['refs_a', 'refs_b', 'refs_comm', 'gen_a', 'gen_b', 'gen_comm']
+#             for group in ref_groups[:3]:
+#                 key = f"para_{group}_{model_obj['short_name']}"
+#                 example[key] = [] if key not in example else example[key]
+#                 input_sentences = example[group]
+#                 for input_sentence in input_sentences:
+#                     example[f"para_{group}_{model_obj['short_name']}"].append(generate_sentences(input_sentence, model, tokenizer))
 
-            if example['split'] != 'train':
-                for group in ref_groups[3:]:
-                    key = f"para_{group}_{model_obj['short_name']}"
-                    example[key] = [] if key not in example else example[key]
-                    input_sentences = example[group]
-                    for input_sentence in input_sentences:
-                        example[f"para_{group}_{model_obj['short_name']}"].append(generate_sentences(input_sentence, model, tokenizer))
+#             if example['split'] != 'train':
+#                 for group in ref_groups[3:]:
+#                     key = f"para_{group}_{model_obj['short_name']}"
+#                     example[key] = [] if key not in example else example[key]
+#                     input_sentences = example[group]
+#                     for input_sentence in input_sentences:
+#                         example[f"para_{group}_{model_obj['short_name']}"].append(generate_sentences(input_sentence, model, tokenizer))
 
-            restructured_data = restructured_data[:idx] + [example] + restructured_data[idx + 1:]
+#             restructured_data = restructured_data[:idx] + [example] + restructured_data[idx + 1:]
 
     open('combined_data.json', 'w').write(json.dumps(restructured_data))
 
-
 if __name__ == '__main__':
-    combine_data()
+    restructured_data = combine_data()
+    summ_headers = ['refs_a', 'refs_b','refs_comm', 'gen_A', 'gen_B', 'gen_comm']
+    
+    for example in restructured_data:
+        for header in summ_headers:
+            if header in example:
+                value = example[header]
+                if isinstance(value, list):
+                    value_list = []
+                    for item in value:
+                        try:
+                            value_list.append(get_paraphrase(item))
+                        except Exception as e:
+                            print(e.message())
+                            open('combined_data.json', 'w').write(json.dumps(restructured_data))
+                            exit(0)
+                    restructured_data[example].update({f"para_{header}": value_list})
+                else:
+                    try:
+                        restructured_data[example].update({f"para_{header}": get_paraphrase(value)})
+                    except Exception as e:
+                        print(e.message())
+                        open('combined_data.json', 'w').write(json.dumps(restructured_data))
+                        exit(0)
+                    
+                        
+                            
+            
+            
