@@ -1,38 +1,27 @@
 import json
 import os
-from typing import List
-import torch
-from transformers import BartForConditionalGeneration, BartTokenizer, AutoTokenizer, AutoModelForSeq2SeqLM, \
-    GenerationConfig
-from itertools import chain
+from tqdm.auto import tqdm
+import openai
+import time
+import sys
+openai.organization = "org-uqW82WXjsx1QYRwThjvVeQqQ"
+openai.api_key = "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"
 
-models = [
-    {
-        'name': 'eugenesiow/bart-paraphrase',
-        'imported_model': BartForConditionalGeneration,
-        'tokenizer': BartTokenizer,
-        'short_name': 'bart'
-    },
-    {
-        'name': 'prithivida/parrot_paraphraser_on_T5',
-        'imported_model': AutoModelForSeq2SeqLM,
-        'tokenizer': AutoTokenizer,
-        'short_name': 'parrot'
-    }
-]
-device = torch.device("cpu" if torch.cuda.is_available() else "cpu")
+# openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
-def generate_sentences(input_sentence: str, model, tokenizer):
-    global device
-    batch = tokenizer(input_sentence, return_tensors='pt')
-    model.to(device)
-    batch['input_ids'].to(device)
-    # print(device)
-    with torch.no_grad():
-        generated_ids = model.generate(batch['input_ids'], max_new_tokens=512)
-        generated_sentence = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
-    return generated_sentence
+# print(openai.Model.list())
+
+# input_sentence = "The hotel has an enjoyable ambience and is great value for money. This location is great if you're looking to access the great fun and action close-by, but with that comes hustle-and-bustle noise from the street the hotel is located on. The rustic rooms here are a little small but really comfortable and clean while the beds are big. There was a thatched roof to the room that provided an airy feel but of course not soundproof. The hotel provides great breakfast to be eaten above the garden or to take away. The hotel does not provide private parking unfortunately."
+
+def get_paraphrase(input_sentence: str):
+    prompt = f"Paraphrase this: f'{input_sentence}'"
+    response = openai.Completion.create(
+        model="text-davinci-003",
+        prompt=prompt,
+        max_tokens=512,
+    )
+    return response['choices'][0]['text']
 
 
 def combine_data():
@@ -82,9 +71,51 @@ def combine_data():
         # print(split_indices[-1] + 1)
         restructured_data = restructured_data[:split_indices[0]] + restructured_split + restructured_data[
                                                                                         split_indices[-1] + 1:]
-        
+
         return restructured_data
 
+    open('combined_data.json', 'w').write(json.dumps(restructured_data))
+
+
+if __name__ == '__main__':
+
+    # combined_data = combine_data()
+
+    combined_data = json.load(open('./combined_data.json', 'r'))
+    # progress_bar = tqdm(range(228))
+    summ_headers = ['refs_a', 'refs_b', 'refs_comm', 'gen_a', 'gen_b', 'gen_comm']
+    for idx, example in enumerate(combined_data):
+        if idx < 13:
+            continue
+        # print()
+        print(f"Example {idx}")
+        for header in summ_headers:
+            # print(header)
+            if header in example:
+                value = example[header]
+                if isinstance(value, list):
+                    # print("Value is list")
+                    value_list = []
+                    for item in value:
+                        try:
+                            value_list.append(get_paraphrase(item))
+                        except Exception as e:
+                            open('combined_data.json', 'w').write(json.dumps(combined_data))
+                            print(e.message())
+                            exit(0)
+                    example.update({f"para_{header}": value_list})
+                else:
+                    # print("Value is not list")
+                    try:
+                        example.update({f"para_{header}": get_paraphrase(value)})
+                    except Exception as e:
+                        open('combined_data.json', 'w').write(json.dumps(combined_data))
+                        print(e.message())
+                        exit(0)
+        # progress_bar.update(1)
+        time.sleep(10)
+
+open('combined_data.json', 'w').write(json.dumps(combined_data))
 #     for model_obj in models:
 #         model = model_obj['imported_model'].from_pretrained(model_obj['name']).to(device)
 #         print(model.generation_config)
@@ -92,10 +123,10 @@ def combine_data():
 #         print(model.generation_config)
 #         tokenizer = model_obj['tokenizer'].from_pretrained(model_obj['name'])
 #         # generation_config = GenerationConfig.from_pretrained(model_obj['name'], max_new_tokens=512)
-        
+
 
 #         for idx, example in enumerate(restructured_data):
-            
+
 #             ref_groups = ['refs_a', 'refs_b', 'refs_comm', 'gen_a', 'gen_b', 'gen_comm']
 #             for group in ref_groups[:3]:
 #                 key = f"para_{group}_{model_obj['short_name']}"
@@ -114,35 +145,29 @@ def combine_data():
 
 #             restructured_data = restructured_data[:idx] + [example] + restructured_data[idx + 1:]
 
-    open('combined_data.json', 'w').write(json.dumps(restructured_data))
+# models = [
+#     {
+#         'name': 'eugenesiow/bart-paraphrase',
+#         'imported_model': BartForConditionalGeneration,
+#         'tokenizer': BartTokenizer,
+#         'short_name': 'bart'
+#     },
+#     {
+#         'name': 'prithivida/parrot_paraphraser_on_T5',
+#         'imported_model': AutoModelForSeq2SeqLM,
+#         'tokenizer': AutoTokenizer,
+#         'short_name': 'parrot'
+#     }
+# ]
+# device = torch.device("cpu" if torch.cuda.is_available() else "cpu")
 
-if __name__ == '__main__':
-    restructured_data = combine_data()
-    summ_headers = ['refs_a', 'refs_b','refs_comm', 'gen_A', 'gen_B', 'gen_comm']
-    
-    for example in restructured_data:
-        for header in summ_headers:
-            if header in example:
-                value = example[header]
-                if isinstance(value, list):
-                    value_list = []
-                    for item in value:
-                        try:
-                            value_list.append(get_paraphrase(item))
-                        except Exception as e:
-                            print(e.message())
-                            open('combined_data.json', 'w').write(json.dumps(restructured_data))
-                            exit(0)
-                    restructured_data[example].update({f"para_{header}": value_list})
-                else:
-                    try:
-                        restructured_data[example].update({f"para_{header}": get_paraphrase(value)})
-                    except Exception as e:
-                        print(e.message())
-                        open('combined_data.json', 'w').write(json.dumps(restructured_data))
-                        exit(0)
-                    
-                        
-                            
-            
-            
+# def generate_sentences(input_sentence: str, model, tokenizer):
+#     global device
+#     batch = tokenizer(input_sentence, return_tensors='pt')
+#     model.to(device)
+#     batch['input_ids'].to(device)
+#     # print(device)
+#     with torch.no_grad():
+#         generated_ids = model.generate(batch['input_ids'], max_new_tokens=512)
+#         generated_sentence = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
+#     return generated_sentence

@@ -1,3 +1,4 @@
 torch~=1.13.1
 transformers~=4.26.1
 pandas~=1.5.3
+openai~=0.27.0
