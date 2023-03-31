@@ -18,9 +18,6 @@ import bert_score
 openai.organization = "org-uqW82WXjsx1QYRwThjvVeQqQ"
 openai.api_key = "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"
 
-evaluator = rouge.Rouge(metrics=["rouge-n", "rouge-l"], max_n=2, limit_length=False, apply_avg=True, stemming=True, ensure_compatibility=True)
-
-SCORER = bert_score.BERTScorer(model_type="microsoft/deberta-xlarge-mnli", lang="en", rescale_with_baseline=True)
 
 def create_entity_lookup(source_dir: str = 'data/source/tripadvisor_json'):
     entity_lookup = dict()
@@ -125,7 +122,13 @@ def get_combined_data(anno_path: str = './data/source/cocosum/anno.json', dev_pa
 
     return restructured_data
 
-def stem(x):
+def get_evaluator():
+    return rouge.Rouge(metrics=["rouge-n", "rouge-l"], max_n=2, limit_length=False, apply_avg=True, stemming=True, ensure_compatibility=True)
+
+def get_scorer():
+    return bert_score.BERTScorer(model_type="microsoft/deberta-xlarge-mnli", lang="en", rescale_with_baseline=True)
+    
+def stem(x, evaluator):
     return Counter(evaluator.stem_tokens(evaluator.tokenize_text(x.lower())))
 
 
@@ -135,8 +138,25 @@ def calc_ds(summ_a, summ_b, summ_comm):
     dr = sum((s_a | s_b | s_c).values())
     return 1.0 - (nr / dr)
 
-def calc_bertscore(summ_a, summ_b, summ_comm):
-  return SCORER.score([summ_a], [summ_b])[2].item()
+def calc_bs_pair(seq_a, seq_b, scorer):
+    ab = [s.detach().numpy()[0] for s in scorer.score([seq_a], [seq_b])]
+    # ba = [s.detach().numpy()[0] for s in scorer.score([seq_a], [seq_b])]
+    # a_b = (np.array(ab) + np.array(ba)) / 2.0
+    a_b = np.array(ab)
+    return a_b
+
+def calc_bs_triplet(summ_a, summ_b, summ_comm, scorer):
+    ab = [s.detach().numpy()[0] for s in scorer.score([summ_a], [summ_b])]
+    ba = [s.detach().numpy()[0] for s in scorer.score([summ_a], [summ_b])]
+    a_comm = [s.detach().numpy()[0] for s in scorer.score([summ_a], [summ_comm])]
+    comm_a = [s.detach().numpy()[0] for s in scorer.score([summ_comm], [summ_a])]
+    b_comm = [s.detach().numpy()[0] for s in scorer.score([summ_b], [summ_comm])]
+    comm_b = [s.detach().numpy()[0] for s in scorer.score([summ_comm], [summ_b])]
+    a_b = (np.array(ab) + np.array(ba)) / 2.0
+    a_c = (np.array(a_comm) + np.array(comm_a)) / 2.0
+    b_c = (np.array(b_comm) + np.array(comm_a)) / 2.0
+    return (a_b + a_c + b_c) / 3.0
+
 
 def compare_orig_para(x, y, orig_type, score_type='DS'):
   print()
