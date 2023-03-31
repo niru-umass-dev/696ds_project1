@@ -1,0 +1,51 @@
+,split,Entity A,Entity B,refs_a,refs_b,refs_comm,gen_a,gen_b,gen_comm,source_reviews_a,source_reviews_b
+0,train,Sheraton Suites Key West,The Inn at Key West,0,0,0,,,,,
+1,train,Hotel Playa del Karma,Mahekal Beach Resort,1,0,0,,,,,
+2,train,Hotel Abbazia,Savoia & Jolanda Hotel,0,0,0,,,,,
+3,train,Apollo Hotel,Raffaello Hotel,1,1,0,,,,,
+4,train,Village At Indian Point,Chateau on the Lake Resort & Spa,0,1,0,,,,,
+5,train,Hotel Victoria,One King West Hotel & Residence,0,0,0,,,,,
+6,train,Gladstone Hotel,Delta Chelsea,2,0,0,,,,,
+7,train,Avenue Plaza Resort,Royal Sonesta Hotel New Orleans,0,0,0,,,,,
+8,train,Locanda Sant'Agostin,BEST WESTERN Hotel Olimpia,2,0,0,,,,,
+9,train,Outrigger Reef on the Beach,Queen Kapiolani Hotel,0,0,0,,,,,
+10,train,Rembrandt Classic Hotel,Doubletree by Hilton Hotel Amsterdam Centraal Station,0,0,0,,,,,
+11,train,Hotel Le Marais,Ambassador Hotel,1,0,0,,,,,
+12,train,Hotel River,Ambasciatori Hotel,0,0,0,,,,,
+13,train,Days Inn Chicago,The Talbott Hotel,0,0,0,,,,,
+14,train,Raffles Hotel Singapore,Shangri-La Hotel,0,0,0,,,,,
+15,train,Grand Hotel Toronto,The Fairmont Royal York,2,0,0,,,,,
+16,train,Hampton Inn & Suites Chicago - Downtown,Hyatt Regency Chicago,0,2,0,,,,,
+17,train,XV Beacon,Hyatt Regency Boston,0,0,0,,,,,
+18,train,Condes de Barcelona,Hotel Diagonal Zero,0,0,0,,,,,
+19,train,Gaylord Palms Resort & Convention Center,Champions World Resort,0,0,0,,,,,
+20,dev,Le Place d'Armes Hotel & Suites,Fairmont The Queen Elizabeth,2,0,0,1,0,0,2,1
+21,dev,Residence Inn by Marriott Toronto Downtown / Entertainment District,The Strathcona Hotel,1,0,0,1,0,0,2,3
+22,dev,Island Shangri La Hotel,Regal Airport Hotel,0,1,0,0,0,0,3,6
+23,dev,Sutton Place Hotel Vancouver,L'Hermitage Hotel,0,0,0,1,1,0,7,3
+24,dev,Le Saint-Sulpice,Hilton Montreal Bonaventure,0,1,0,0,1,0,2,4
+25,dev,Hampshire Hotel - Rembrandt Square Amsterdam,Ambassade Hotel,0,0,0,0,1,0,1,2
+26,dev,Aqua Waikiki Beachside Hotel,Hilton Hawaiian Village Beach Resort Spa,0,0,0,0,1,0,1,7
+27,dev,Hotel Raphael,Hotel Campo De' Fiori,0,1,0,0,1,0,4,3
+28,dev,Hotel Brunelleschi,Hotel Orto De Medici,0,0,0,1,1,0,4,4
+29,dev,Holiday Inn Express Rome - San Giovanni,BEST WESTERN Hotel Universo,0,0,0,1,0,0,3,1
+30,test,Hotel Inter Istanbul,Swissotel The Bosphorus,0,0,0,0,0,0,1,0
+31,test,Metropark Hotel Kowloon,Langham Place Hong Kong,1,1,0,1,1,0,3,3
+32,test,Colonnade Hotel,The Boston Park Plaza Hotel & Towers,1,0,0,1,1,0,6,1
+33,test,Pullman Barcelona Skipper,Salles Hotel Pere IV,0,0,0,1,0,0,2,1
+34,test,La Quinta Inn & Suites Chicago Downtown,Hotel 71,0,0,0,1,1,0,1,1
+35,test,Hotel Mina,Conrad Istanbul,0,2,0,0,1,0,3,2
+36,test,Chic & Basic Amsterdam,Lloyd Hotel,0,0,0,0,0,0,1,1
+37,test,Key West Marriott Beachside Hotel,Parrot Key Hotel and Resort,1,0,0,0,1,0,2,8
+38,test,Ca' dei Conti,Hotel Antiche Figure,0,0,0,0,0,0,0,2
+39,test,Dersaadet Hotel Istanbul,Basileus Hotel,0,0,0,0,1,0,5,4
+40,test,Grand Pacific Hotel,Fullerton Hotel Singapore,0,1,0,0,0,0,0,3
+41,test,Grand Park City Hall,Marina Bay Sands,0,0,0,0,0,0,1,1
+42,test,Swissotel Sydney,Four Seasons Hotel Sydney,0,0,0,0,0,0,2,1
+43,test,Hotel le Bellechasse,Holiday Inn Express Paris-Canal de la Villette,0,0,0,0,0,0,1,2
+44,test,LHotel,Loews Hotel Vogue,0,2,0,0,1,0,2,5
+45,test,Hotel Cielo,Fairmont Mayakoba,1,0,0,1,1,0,6,6
+46,test,Ca' Maria Adele,Hotel Canal Grande,0,0,0,0,1,0,3,3
+47,test,Hotel Oceania,Hotel Santa Maria,2,0,0,1,0,0,3,2
+Unique Mentions,,,,13,10,0,11,15,0,26,27
+Total Mentions,,,,18,13,0,11,15,0,71,80
