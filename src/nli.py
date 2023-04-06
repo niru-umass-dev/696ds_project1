@@ -3,21 +3,19 @@ import pandas as pd
 import torch
 import json
 import nltk
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from transformers import pipeline
+# from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
-# ROBERTA-LARGE-MNLI 
-model = AutoModelForSequenceClassification.from_pretrained('roberta-large-mnli')
-tokenizer = AutoTokenizer.from_pretrained('roberta-large-mnli')
+
+# ROBERTA-LARGE-MNLI
+pipe = pipeline("text-classification",model='roberta-large-mnli' ,return_all_scores=True, device = 0)
 label_mapping = ['contradiction', 'neutral','entailment']
 
-
 # CROSS-ENCODER NLI-ROBERTA-BASE
-# model = AutoModelForSequenceClassification.from_pretrained('cross-encoder/nli-roberta-base')
-# tokenizer = AutoTokenizer.from_pretrained('cross-encoder/nli-roberta-base')
+# pipe = pipeline("text-classification",model='cross-encoder/nli-roberta-base' ,return_all_scores=True, device = 0)
 # label_mapping = ['contradiction', 'entailment', 'neutral']
 
-device = "cuda:0" if torch.cuda.is_available() else "cpu"
-model = model.to(device)
+
 
 data = json.load(open('data/combined_data.json', 'r'))
 # data = json.load(open('data/combined_data_masked_spacyner_bertscore.json', 'r'))
@@ -27,21 +25,28 @@ data = json.load(open('data/combined_data.json', 'r'))
 # NLI to get labels and scores
 def compute_NLI(sent1, sent2, rev=False):
     
+    labels = []
+    prob = []
+    
+    combined_list = []
+    
     if rev == True:
-        features = tokenizer(sent1,sent2,  padding=True, truncation=True, return_tensors="pt")
-        features.to(device) 
+        for s1, s2 in zip(sent2, sent1):
+            combined_list.append(s1 + ' ' + s2)
     else:    
-        features = tokenizer(sent2,sent1,  padding=True, truncation=True, return_tensors="pt")
-        features.to(device)
-
-    model.eval()
-    with torch.no_grad():
-        scores = model(**features).logits
-        labels = [label_mapping[score_max] for score_max in scores.argmax(dim=1).detach().cpu().numpy()]
-        
-        prob = torch.softmax(scores, dim=1).detach().cpu().numpy()
+        for s1, s2 in zip(sent1, sent2):
+            combined_list.append(s1 + ' ' + s2)
             
-    return labels, prob.tolist()
+    
+    results = pipe(combined_list)
+    
+    for i in results:
+        result = {d['label']: d['score'] for d in i}
+        labels.append(max(result, key=result.get))
+        prob.append(list(result.values()))
+
+            
+    return labels, prob
 
 
 # HELPER METHOD FOR MAIN FUNCTION HELPFUL CONTRAST
