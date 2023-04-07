@@ -3,7 +3,7 @@ import pandas as pd
 import torch
 import json
 import nltk
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from transformers import pipeline
 
 
 ######################################################################################################################
