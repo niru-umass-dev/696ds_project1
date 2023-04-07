@@ -237,6 +237,8 @@ cont_df = pd.DataFrame(
 
 fact_labels = []
 fact_probs = []
+fact_labels_rev = []
+fact_probs_rev = []
 sent_pair_1 =[]
 sent_pair_2 = []
 sent1_source =[]
@@ -272,12 +274,19 @@ for d in range(20,len(data)):
 
     fact_labels += fact_label
     fact_probs.append(fact_prob)
+    
+    fact_label_rev, fact_prob_rev = compute_NLI(ref_sent_p1,ref_sent_p2, rev = True)
+
+    fact_labels_rev += fact_label_rev
+    fact_probs_rev.append(fact_prob_rev)
 
     print(d-20)
     
 
 fact_labels_gen = []
 fact_probs_gen = []
+fact_labels_gen_rev = []
+fact_probs_gen_rev = []
 sent_pair_1_gen =[]
 sent_pair_2_gen = []
 sent1_source_gen =[]
@@ -313,6 +322,11 @@ for d in range(20,len(data)):
 
     fact_labels_gen += fact_label_gen
     fact_probs_gen.append(fact_prob_gen)
+    
+    fact_label_gen_rev, fact_prob_gen_rev = compute_NLI(gen_sent_p1, gen_sent_p2, rev = True)
+
+    fact_labels_gen_rev += fact_label_gen_rev
+    fact_probs_gen_rev.append(fact_prob_gen_rev)
 
     print(d-20)
     
@@ -322,6 +336,13 @@ ent = [j for i in fact_probs for j in np.array(i)[:,label_mapping.index("entailm
 cont_gen = [j for i in fact_probs_gen for j in np.array(i)[:,label_mapping.index("contradiction")]]
 neut_gen = [j for i in fact_probs_gen for j in np.array(i)[:,label_mapping.index("neutral")]]
 ent_gen = [j for i in fact_probs_gen for j in np.array(i)[:,label_mapping.index("entailment")]]
+
+cont_rev = [j for i in fact_probs_rev for j in np.array(i)[:,label_mapping.index("contradiction")]]
+neut_rev = [j for i in fact_probs_rev for j in np.array(i)[:,label_mapping.index("neutral")]]
+ent_rev = [j for i in fact_probs_rev for j in np.array(i)[:,label_mapping.index("entailment")]]
+cont_gen_rev = [j for i in fact_probs_gen_rev for j in np.array(i)[:,label_mapping.index("contradiction")]]
+neut_gen_rev = [j for i in fact_probs_gen_rev for j in np.array(i)[:,label_mapping.index("neutral")]]
+ent_gen_rev = [j for i in fact_probs_gen_rev for j in np.array(i)[:,label_mapping.index("entailment")]]
 
 
 fact_pop_df = pd.DataFrame(
@@ -334,7 +355,11 @@ fact_pop_df = pd.DataFrame(
      '1_2_neut':  neut + neut_gen,
      '1_2_cont': cont + cont_gen,
      '1_2_ent': ent + ent_gen,
-     'Label': fact_labels +fact_labels_gen,
+     '1_2_Label': fact_labels +fact_labels_gen,
+     '2_1_neut':  neut_rev + neut_gen_rev,
+     '2_1_cont': cont_rev + cont_gen_rev,
+     '2_1_ent': ent_rev + ent_gen_rev,
+     '2_1_Label': fact_labels_rev +fact_labels_gen_rev,
      'Type': sum_type + sum_type_gen
     })
 
@@ -343,8 +368,8 @@ fact_pop_df = pd.DataFrame(
 
 # SAVE CSV FILES
 
-cont_df.to_csv('contrast.csv', index = None, header=True) 
-fact_pop_df.to_csv('factuality_popular.csv', index = None, header=True) 
+cont_df.to_csv('contrast_final.csv', index = None, header=True) 
+fact_pop_df.to_csv('factuality_popular_final.csv', index = None, header=True) 
 
 # cont_df.to_csv('contrast_mask_bertscore.csv', index = None, header=True) 
 # fact_pop_df.to_csv('factuality_popular_mask_bertscore.csv', index = None, header=True) 
