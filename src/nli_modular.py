@@ -14,18 +14,14 @@ class SummNLI():
 
   def __init__(self, data_path:str = 'data/combined_data.json', data_type: str = 'combined'):
     # ROBERTA-LARGE-MNLI 
-    self.model = AutoModelForSequenceClassification.from_pretrained('roberta-large-mnli')
-    self.tokenizer = AutoTokenizer.from_pretrained('roberta-large-mnli')
+    self.pipe = pipeline("text-classification",model='roberta-large-mnli' ,return_all_scores=True, device = 0)
     self.label_mapping = ['contradiction', 'neutral','entailment']
 
 
     # CROSS-ENCODER NLI-ROBERTA-BASE
-    # model = AutoModelForSequenceClassification.from_pretrained('cross-encoder/nli-roberta-base')
-    # tokenizer = AutoTokenizer.from_pretrained('cross-encoder/nli-roberta-base')
-    # label_mapping = ['contradiction', 'entailment', 'neutral']
+    # self.pipe = pipeline("text-classification",model='cross-encoder/nli-roberta-base' ,return_all_scores=True, device = 0)
+    # self.label_mapping = ['contradiction', 'entailment', 'neutral']
 
-    self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    self.model = self.model.to(self.device)
 
     self.data = json.load(open(data_path, 'r'))
     self.data_type = data_type
@@ -128,6 +124,8 @@ class SummNLI():
 
     fact_labels = []
     fact_probs = []
+    fact_labels_rev = []
+    fact_probs_rev = []
     sent_pair_1 =[]
     sent_pair_2 = []
     sent1_source =[]
@@ -163,12 +161,19 @@ class SummNLI():
 
         fact_labels += fact_label
         fact_probs.append(fact_prob)
+        
+        fact_label_rev, fact_prob_rev = self.compute_NLI(ref_sent_p1,ref_sent_p2, rev = True)
+
+        fact_labels_rev += fact_label_rev
+        fact_probs_rev.append(fact_prob_rev)
 
         print(d-20)
         
 
     fact_labels_gen = []
     fact_probs_gen = []
+    fact_labels_gen_rev = []
+    fact_probs_gen_rev = []
     sent_pair_1_gen =[]
     sent_pair_2_gen = []
     sent1_source_gen =[]
@@ -204,6 +209,11 @@ class SummNLI():
 
         fact_labels_gen += fact_label_gen
         fact_probs_gen.append(fact_prob_gen)
+        
+        fact_label_gen_rev, fact_prob_gen_rev = self.compute_NLI(gen_sent_p1, gen_sent_p2, rev = True)
+
+        fact_labels_gen_rev += fact_label_gen_rev
+        fact_probs_gen_rev.append(fact_prob_gen_rev)
 
         print(d-20)
         
@@ -213,21 +223,31 @@ class SummNLI():
     cont_gen = [j for i in fact_probs_gen for j in np.array(i)[:,label_mapping.index("contradiction")]]
     neut_gen = [j for i in fact_probs_gen for j in np.array(i)[:,label_mapping.index("neutral")]]
     ent_gen = [j for i in fact_probs_gen for j in np.array(i)[:,label_mapping.index("entailment")]]
+    
+    cont_rev = [j for i in fact_probs_rev for j in np.array(i)[:,label_mapping.index("contradiction")]]
+    neut_rev = [j for i in fact_probs_rev for j in np.array(i)[:,label_mapping.index("neutral")]]
+    ent_rev = [j for i in fact_probs_rev for j in np.array(i)[:,label_mapping.index("entailment")]]
+    cont_gen_rev = [j for i in fact_probs_gen_rev for j in np.array(i)[:,label_mapping.index("contradiction")]]
+    neut_gen_rev = [j for i in fact_probs_gen_rev for j in np.array(i)[:,label_mapping.index("neutral")]]
+    ent_gen_rev = [j for i in fact_probs_gen_rev for j in np.array(i)[:,label_mapping.index("entailment")]]
 
 
-    fact_pop_df = pd.DataFrame(
-        {'Sentence1': sent_pair_1 + sent_pair_1_gen,
-        'Sentence2': sent_pair_2 + sent_pair_2_gen,
-        'Sample': sample + sample_gen,
-        'Sent1_source': sent1_source + sent1_source_gen,
-        'Sent1_source_entity': sent1_source_ent + sent1_source_ent_gen,
-        'Sent2_entity': sent2_ent + sent2_ent_gen,
-        '1_2_neut':  neut + neut_gen,
-        '1_2_cont': cont + cont_gen,
-        '1_2_ent': ent + ent_gen,
-        'Label': fact_labels +fact_labels_gen,
-        'Type': sum_type + sum_type_gen
-        })
+    fact_pop_df = pd.DataFrame({'Sentence1': sent_pair_1 + sent_pair_1_gen,
+     'Sentence2': sent_pair_2 + sent_pair_2_gen,
+     'Sample': sample + sample_gen,
+     'Sent1_source': sent1_source + sent1_source_gen,
+     'Sent1_source_entity': sent1_source_ent + sent1_source_ent_gen,
+     'Sent2_entity': sent2_ent + sent2_ent_gen,
+     '1_2_neut':  neut + neut_gen,
+     '1_2_cont': cont + cont_gen,
+     '1_2_ent': ent + ent_gen,
+     '1_2_Label': fact_labels +fact_labels_gen,
+     '2_1_neut':  neut_rev + neut_gen_rev,
+     '2_1_cont': cont_rev + cont_gen_rev,
+     '2_1_ent': ent_rev + ent_gen_rev,
+     '2_1_Label': fact_labels_rev +fact_labels_gen_rev,
+     'Type': sum_type + sum_type_gen
+    })
 
 
     ####################################################################################################################
@@ -245,24 +265,48 @@ class SummNLI():
     ####################################################################################################################
     
     # NLI to get labels and scores
-  def compute_NLI(self,sent1, sent2, rev=False):
+  def compute_NLI(sent1, sent2, rev=False):
+    
+    labels = []
+    prob = []
+    
+    combined_list = []
+    
+    if rev == True:
+        for s1, s2 in zip(sent2, sent1):
+            combined_list.append(s1 + ' ' + s2)
+    else:    
+        for s1, s2 in zip(sent1, sent2):
+            combined_list.append(s1 + ' ' + s2)        
+    
+    results = self.pipe(combined_list)
+    
+    for i in results:
+        result = {d['label']: d['score'] for d in i}
+        labels.append(max(result, key=result.get))
+        prob.append(list(result.values()))
+            
+    return labels, prob
+
+
+#   def compute_NLI(self,sent1, sent2, rev=False):
       
-      if rev == True:
-          features = self.tokenizer(sent1,sent2,  padding=True, truncation=True, return_tensors="pt")
-          features.to(self.device) 
-      else:    
-          features = self.tokenizer(sent2,sent1,  padding=True, truncation=True, return_tensors="pt")
-          features.to(self.device)
+#       if rev == True:
+#           features = self.tokenizer(sent1,sent2,  padding=True, truncation=True, return_tensors="pt")
+#           features.to(self.device) 
+#       else:    
+#           features = self.tokenizer(sent2,sent1,  padding=True, truncation=True, return_tensors="pt")
+#           features.to(self.device)
 
-      self.model.eval()
-      with torch.no_grad():
-          scores = self.model(**features).logits
-          labels = [self.label_mapping[score_max] for score_max in scores.argmax(dim=1).detach().cpu().numpy()]
+#       self.model.eval()
+#       with torch.no_grad():
+#           scores = self.model(**features).logits
+#           labels = [self.label_mapping[score_max] for score_max in scores.argmax(dim=1).detach().cpu().numpy()]
           
-          prob = torch.softmax(scores, dim=1).detach().cpu().numpy()
+#           prob = torch.softmax(scores, dim=1).detach().cpu().numpy()
               
-      return labels, prob.tolist()
-
+#       return labels, prob.tolist()
+  
 
   # HELPER METHOD FOR MAIN FUNCTION HELPFUL CONTRAST
   def cont_helper(self,a_sum, b_sum, comm_sum,sum_type):
