@@ -14,7 +14,7 @@ from scipy.stats import spearmanr
 import numpy as np
 from numpy import mean
 import bert_score
-
+from typing import List, Dict
 
 
 def get_evaluator():
@@ -27,8 +27,8 @@ def stem(x, evaluator):
     return Counter(evaluator.stem_tokens(evaluator.tokenize_text(x.lower())))
 
 
-def calc_ds(summ_a, summ_b, summ_comm):
-    s_a, s_b, s_c = stem(summ_a), stem(summ_b), stem(summ_comm)
+def calc_ds(summ_a, summ_b, summ_comm, evaluator):
+    s_a, s_b, s_c = stem(summ_a, evaluator), stem(summ_b, evaluator), stem(summ_comm, evaluator)
     nr = sum((s_a & s_b).values()) + sum((s_a & s_c).values()) + sum((s_b & s_c).values()) - 2.0 * sum((s_a & s_b & s_c).values())
     dr = sum((s_a | s_b | s_c).values())
     return 1.0 - (nr / dr)
@@ -79,8 +79,42 @@ def compare_orig_para(x, y, orig_type, score_type='DS'):
   print(f"Correlation = {r[0,1]:.2f}")
   print(f"µ({orig_type}-para) = {np.mean(diffs):.1f} | σ({orig_type}-para) = {np.std(diffs):.1f}", '\n')
 
+def get_ds_scores(combined_data: List[Dict], summ_type, evaluator):
+    records = []
+    for example_id, example in enumerate(combined_data):
+        split = example['split']
+        if summ_type == 'gen' and split=='train':
+            continue
 
-def get_ds_scores(dataset_path:str, is_paraphrase: bool, orig_type: str, score_fn_name: str = "calc_ds"):
+        if summ_type == 'gen':
+            cont_a, cont_b, cont_comm = example['gen_a'], example['gen_b'], example['gen_comm']
+        if summ_type == 'ref':
+            cont_a, cont_b, cont_comm = example['refs_a'][0], example['refs_b'][0], example['refs_comm'][0]
+
+        example_ds_score = calc_ds(cont_a, cont_b, cont_comm, evaluator)
+
+        records.append((summ_type, split, example_id, cont_a, cont_b, cont_comm, example_ds_score))
+    return records
+
+def get_bs_scores(combined_data: List[Dict], summ_type, scorer):
+    records = []
+    for example_id, example in enumerate(combined_data):
+        split = example['split']
+        if summ_type == 'gen' and split=='train':
+            continue
+
+        if summ_type == 'gen':
+            cont_a, cont_b, cont_comm = example['gen_a'], example['gen_b'], example['gen_comm']
+        if summ_type == 'ref':
+            cont_a, cont_b, cont_comm = example['refs_a'][0], example['refs_b'][0], example['refs_comm'][0]
+
+        example_bs_score = calc_bs_triplet(cont_a, cont_b, cont_comm, scorer)
+
+        records.append((summ_type, split, example_id, cont_a, cont_b, cont_comm, example_bs_score[2]))
+    return records
+
+
+def get_baseline_scores(dataset_path:str, is_paraphrase: bool, orig_type: str, score_fn_name: str = "calc_ds"):
   score_fn = globals()[score_fn_name]
   assert orig_type in {'gen', 'refs'}
   dataset_type = 'para_' if is_paraphrase else ''
@@ -109,9 +143,8 @@ def get_ds_scores(dataset_path:str, is_paraphrase: bool, orig_type: str, score_f
   return ds_scores
 
 
-
-
 if __name__=='__main__':
+    pass
     # print(f"main_path = {sys.argv[0]}")
     # project_folder = os.getcwd()[:os.getcwd().find('696ds_project1')+ len('696ds_project1')]
     # data_folder = os.path.join(project_folder, 'data')
