@@ -84,4 +84,12 @@ for summ_type in summ_orig:
         df.to_csv(f"data/results/bs_{summ_type}.csv")
     wandb.save(f"data/results/bs_{summ_type}.csv")
 
+    
+## GENERATE EXPERIMENTAL DATASETS (PARAPHRASE, SELF PARAPHRASE, etc)
+
+## Generate Paraphrase Dataset
+if not os.path.isfile("data/combined_data_paraphrase.json"):
+    
+
+
 wandb.finish()
