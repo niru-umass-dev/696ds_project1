@@ -5,6 +5,7 @@ import openai
 import time
 import rouge
 import numpy as np
+from typing import List
 
 openai.organization = "org-uqW82WXjsx1QYRwThjvVeQqQ"
 openai.api_key = "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"
@@ -38,7 +39,7 @@ def get_para_output(input_summ: str, control_length: bool, n: int, dummy: bool, 
 
   return output
 
-def create_para_data_diff(orig_dataset_path: str, control_length: bool, n: int, dummy: bool, tokenizer = None):
+def get_para_dataset(orig_dataset_path: str, control_length: bool, n: int, dummy: bool, tokenizer = None, sleep = 0):
   # replace "dummy value" with get_paraphrase(item, max_len)
   combined_data = json.load(open(orig_dataset_path, 'r'))
   # progress_bar = tqdm(range(228))
@@ -56,30 +57,34 @@ def create_para_data_diff(orig_dataset_path: str, control_length: bool, n: int, 
         value = example[header]
         if isinstance(value, list):
           value_list = [get_para_output(input_summ=item, control_length=control_length, n=n, dummy=dummy, tokenizer=tokenizer) for item in value]
-          new_example.update({f"para_{header}": value_list})
+          new_example.update({f"{header}": value_list})
         else:
-          new_example.update({f"para_{header}": get_para_output(input_summ=value, control_length=control_length, n=n, dummy=dummy, tokenizer=tokenizer)})
+          new_example.update({f"{header}": get_para_output(input_summ=value, control_length=control_length, n=n, dummy=dummy, tokenizer=tokenizer)})
     paraphrase_data.append(new_example)
-    time.sleep(10)
+    time.sleep(sleep)
   return paraphrase_data
 
-def create_para_data_same(orig_dataset_path: str, src_summ:str, control_length: bool, n: int, dummy: bool, tokenizer = None):
+def get_selfpara_dataset(orig_dataset_path: str, src_summ:str, control_length: bool, n: int, dummy: bool, tokenizer = None, sleep = 0):
   # replace "dummy value" with get_paraphrase(item, max_len)
   combined_data = json.load(open(orig_dataset_path, 'r'))
   # progress_bar = tqdm(range(228))
   paraphrase_data = []
   for idx, example in enumerate(combined_data):
-    if src_summ not in example:
-      continue
     new_example = dict()
     new_example['split'] = example['split']
     new_example['entity_a'] = example['entity_a']
     new_example['entity_b'] = example['entity_b']
+    
+    new_example['refs_a'] = [example[f"refs_{src_summ}"][0]]
+    new_example['refs_b'] = [get_para_output(input_summ=new_example['refs_a'], control_length=control_length, n=n, dummy=dummy, tokenizer=tokenizer)]
+    new_example['refs_comm'] = [get_para_output(input_summ=new_example['refs_b'], control_length=control_length, n=n, dummy=dummy, tokenizer=tokenizer)]
+    
+    if example['split'] != 'train':
+        new_example['gen_a'] = example[f"gen_{src_summ}"]
+        new_example['gen_b'] = get_para_output(input_summ=new_example['gen_a'], control_length=control_length, n=n, dummy=dummy, tokenizer=tokenizer)
+        new_example['gen_comm'] = get_para_output(input_summ=new_example['gen_b'], control_length=control_length, n=n, dummy=dummy, tokenizer=tokenizer) 
 
-    new_example['gen_a'] = example[src_summ] if src_summ.startswith('gen') else example[src_summ][0]
-    new_example['gen_b'] = get_para_output(input_summ=new_example['gen_a'], control_length=control_length, n=n, dummy=dummy, tokenizer=tokenizer)
-    new_example['gen_comm'] = get_para_output(input_summ=new_example['gen_b'], control_length=control_length, n=n, dummy=dummy, tokenizer=tokenizer)
     print(f"Example {idx}")
     paraphrase_data.append(new_example)
-    # time.sleep(10)
+    time.sleep(sleep)
   return paraphrase_data

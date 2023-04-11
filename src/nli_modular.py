@@ -12,7 +12,7 @@ from transformers import pipeline
 
 class SummNLI():
 
-  def __init__(self, data_path:str = 'data/combined_data.json', data_type: str = 'combined', summ_type:str = 'ref'):
+  def __init__(self, data_path:str = 'data/combined_data.json', data_type: str = 'base', summ_type:str = 'ref'):
     
     # ROBERTA-LARGE-MNLI 
     self.pipe = pipeline("text-classification",model='roberta-large-mnli' ,return_all_scores=True, device = 0)
@@ -137,10 +137,10 @@ class SummNLI():
 
     # SAVE CSV FILE
 
-    cont_df.to_csv(f'data/{self.data_type}_{self.summ_type}_contrast.csv', index = None, header=True) 
+    cont_df.to_csv(f'data/results/sentpairs_nli_contrast_{self.summ_type}_{self.data_type}.csv', index = None, header=True) 
 
     # IF THE DATA_TYPE IS PARAPHRASES, SKIP FACTUALITY SINCE WE DON'T HAVE SOURCE DATA PARAPHRASES
-    if self.data_type == 'paraphrase':
+    if self.data_type == 'paraphrase' or self.data_type == 'selfparaphrase':
       return
 
     ##############################################################################################################
@@ -264,12 +264,13 @@ class SummNLI():
 
     # SAVE FACTUALITY POPULAR OPINION CSV FILE
 
-    fact_pop_df.to_csv(f'data/{self.data_type}_{self.summ_type}_factuality_popular.csv', index = None, header=True) 
+    fact_pop_df.to_csv(f'data/results/sentpairs_nli_factuality_{self.summ_type}_{self.data_type}.csv', index = None, header=True)
+    fact_pop_df.to_csv(f'data/results/sentpairs_nli_popular_{self.summ_type}_{self.data_type}.csv', index = None, header=True) 
 
     ####################################################################################################################
     
     # NLI to get labels and scores
-  def compute_NLI(sent1, sent2, rev=False):
+  def compute_NLI(self, sent1, sent2, rev=False):
     
     labels = []
     prob = []

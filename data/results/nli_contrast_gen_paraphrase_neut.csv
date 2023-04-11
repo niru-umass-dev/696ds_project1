@@ -1,0 +1,197 @@
+summ_type,split,example_id,summ_a,summ_b,summ_comm,nli_contrast_neut_score
+gen,dev,20,"
+
+Le Place D'Armes is an impressive and timeless edifice, set in a prime location. Every bedroom includes eye-catching, exposed brick walls and small extras such as chocolates and nighttime turndown service. The team of concierges are especially knowledgeable and friendly. The rooms boast hardwood flooring and expansive masonry walls, while the bathrooms are large and feature a spacious shower. The hotel employees demonstrate exemplary hospitality and willingly cater to every need. The only downside is that hourly or half-day charges for the seminar room can apply.","
+
+This hotel, while not as luxurious as other hotels, is in a good location for business travelers, as it is conveniently located close to St Catherine Street with its shopping and restaurants. The room was a bit more modest in size than usual, but had a modern decor more impressive than a normal Fairmont. The bedding was cozy, but the bathroom was quite small. Additionally, guests are provided with Miller Harris citron toiletries that the staff appear to enjoy providing.","
+
+The employees of the hotel provide excellent service and express hospitality. The lodging is neat and tidy and the",0.7269258100040896
+gen,dev,21,"
+
+Staying in the Residence Inn Toronto is an excellent experience and very different from taking kids out to eat. The hotel is conveniently located near both the Rogers Centre and the CN Tower, making it perfect for walking around. The rooms were brand new and immaculately clean, and also had a full kitchen which was very modern. The staff was pleasent and accommodating, especially Kemika at the valet who always provided a delightful breakfast. Although the parking fee was slightly irritating, the benefits outweighed it seeing as how you get a fully furnished hotel plus a complimentary breakfast.","
+
+This hotel may be relatively inexpensive compared to hotels downtown Toronto, however, its price is still high compared to the rest of the city. It is convenient, being located near the train station, the Rogers Centre, the Air Canada Centre, the Hockey Hall of Fame, the CN Tower, and the main railway station - all within walking distance. However, the rooms are quite cramped and don't offer much storage space, the showers have only lukewarm water, and the staff provided no assistance. Parking is also costly, at $15 a","
+
+The hotel's spot is fantastic and it is only a short stroll away from the train station and the Rogers",0.7160324249037673
+gen,dev,22,"
+
+This hotel definitely lives up to its acclaim and is worth a visit. It boasts large, spotless rooms with all the amenities you could ask for. Moreover, the warm reception extended to visitors is truly something special. One of the advantages of staying here is its convenience to the underground metro through a large shopping centre and park. You can shop during your stay without having to worry about carrying heavy items. To top it all off, the swimming pool is an amazing place to relax.","
+
+This hotel is an ideal spot to stay between the airport and hotel in Hong Kong, even in the midst of torrential rainfall. The hotel is linked to the airport through an enclosed overpass. While the room was spacious and comfy, the shower faucets were faulty and adjusting the temperature was difficult. The employees at the hotel were exceedingly friendly and accommodating. The buffet breakfast was delicious. This hotel also boasts a selection of eateries, pubs, and a short distance from downtown Hong Kong.","
+
+The personnel at the hotel are quite hospitable and the accommodation is well-maintained. This is a",0.7604950341281546
+gen,dev,23,"
+
+Visiting the Sutton Place hotel, which is conveniently located at the intersection of Burrard and Robson streets, is ideal for both business and leisure travelers. It's close to numerous shops, eateries, and attractions like Canada Place and the Hop-on-Hop-off Trolley Tour, making it the perfect place to stay when exploring the city. The accommodations are comfortable and spacious, with cushy beds that are sure to promote a restful night's sleep. Moreover, the staff are incredibly hospitable and treat every guest like royalty.","
+
+L'Hermitage is a small, boutique-style hotel located in the heart of downtown Vancouver. It is conveniently close to famous stores like Sears, Hudson Bay, Holt Renfrew, etc. This hotel does not offer room service which may be a put-off to some, but the staff is still learning the business of hospitality as they go. Jean-Michel and Hippo went above and beyond to make our stay memorable, which deserves recognition. If you wish to reward yourself, you can enjoy the reasonably priced $17.50 breakfast buffet at the hotel - it is truly worth it.","
+
+The personnel at the hotel are accommodating and pleasant. This hotel has garnered high praise.",0.8071207401224253
+gen,dev,24,"
+
+Without a doubt, this hotel is one of the finest and most attractive accomodations available. All those who visit it give it the highest ratings. It is positioned in the core of Montreal’s historical centre, close to the church and a river. There are many restaurants and sights nearby. The bedroom was extremely roomy with a fireplace and a queen-size bed. The restroom was well-maintained","
+
+The luxurious Hilton Bonaventure located in the heart of Montreal offers a 4 star hotel experience without elevators, though you can still enjoy a shower with 4 inches of water. This hotel gives you access to the Montreal underground City for shopping, and it is even heated in cold weather! If you book a room on the executive floor you can benefit from complimentary breakfast and snacks served in the evening. Furthermore, this hotel includes many water attractions and a private pool","
+
+This hotel is situated in the center of the urban area and is highly suggested. The personnel at the hotel were extremely accommodating",0.956194455249656
+gen,dev,25,"
+
+This hotel is in an ideal location; it is in the middle of Amsterdam, away from the overly touristy part of the city but still close enough to popular attractions so it doesn't take a long walk to get there. The rooms were roomy and simple to maneuver a wheelchair through the room and bath. Unfortunately, the staff was incredibly rude and dismissive when my party asked about accessing the internet. What's more, the staff made an inappropriate joke at the expense of American tourists even though none of us were from America.","
+
+The Ambassade hotel is in the heart of the city and nearby to all of Amsterdam's tourist attractions. Guests can enjoy a relaxing stay with luxurious decor, the most comfortable beds and pillows, and a tranquil atmosphere. The delicious breakfast spread is worth mentioning, and certain rooms provide laptop users with a view of the canal. Furthermore, the rooms are spacious and offer complimentary Wi-Fi and a printer.","
+
+The hotel is within a reasonable walking distance from the attractions and amenities available. The personnel working at the hotel were",0.6722169822085119
+gen,dev,26,"
+
+This lodging facility may have only 2 stars but it's certainly worth its price. The location is unmatched, conveniently situated across the street of Waikiki Beach and close to the International Market Place. Unfortunately, the rooms are not quite as impressive; though decorated nicely with antiques, the interiors require updating. The hotel itself appears quite out of date. As for the food in the atrium that serves Kona coffee, we were not at all impressed. On top of that, there's no pool on site and travelers have to store their boards in a lockup room within the hotel.","
+
+The Hilton Hawaiian Village is an okay resort with an appealing ambient, providing a good selection of shops to choose from. The accomodation in the Kahlia Tower is situated on the 31st floor of the Rainbow Tower, but appears to be still stuck in the 1970s, with thin walls. Additionally, the hot water takes quite a while to arrive.","
+
+This hotel is situated in an outstanding spot and the personnel are really accommodating. There is no doubt",0.566337891102593
+gen,dev,27,"
+
+This hotel is such a pleasant sight and will make visitors eager to come back. It has a perfect location for accessing many of the major landmarks in Rome, with Piazza Navona being conveniently near. The rooms may not offer a lot of space, but they are cosy and have excellent bathrooms. Furthermore, the Richard Meier rooms are great with adjustable beds, and efficient use of the area. The breakfast is truly exquisite, beginning the day with a delightful Bucks Fizz. The staff was welcoming and supportive, but they could use some refreshing. All things considered, it was a great stay.","
+
+Hotel Campo de Fiori ensures that your stay is delightful. The hotel is located just a mere five minutes away from the Campo De Fiori, an area filled with great restaurants, bars, and exciting nightlife. The guest rooms in the hotel boast European-size dimensions, with beautiful, traditional interior designs. The beds were large and air conditioning was provided. The staff were knowledgeable about the local area and able to give valuable advice about where to go and what to do without the risk of being taken advantage of. Unfortunately, the breakfast was not up to par (such as the cheese clearly not coming from any cow, and the orange","
+
+The hotel's placement is ideal and the personnel are incredibly hospitable and accommodating.",0.7943136744089269
+gen,dev,28,"
+
+Staying at the Brunelleschi in Florence is an experience like no other. The unbeatable location right in the midst of one of the city's main streets, with the Duomo only a few steps away, is ideal. The bedrooms, complete with a separate bedroom, are stunning with incredible views of the campanile. The helpful staff are always available to assist, and a tip: why not bring a picnic to the rooftop terrace and take in the awe-inspiring views of the city?","
+
+The Orto de' Medici is a wonderful 3-star accommodation right in the heart of Florence, a comfortable stroll away from the more crowded parts of the city. The guest rooms are generously sized, but plain and well-kept. Windows that block out sound make it really peaceful, while the bathrooms could use some sprucing up, but they appear to have been renovated in the last decade. The people who work at the hotel are outstanding, from the reception desk people to the housekeepers. The complimentary continental breakfast that's available self-serve from two tables is also sounds delicious.","
+
+The employees at the hotel were extremely welcoming and accommodating. The accommodations were tidy and the morning meal was",0.7896293830816196
+gen,dev,29,"
+
+A friend suggested staying at the Holiday Inn San Giovanni, located close to public transportation but not in the middle of Rome's city centre. Only a 10-minute walk away from the bustling city, the hotel was immaculate and modern. The staff were extremely kind and accommodating, and the spread for breakfast was decent. Though there weren't any complaints about the hotel, the cost of staying there was quite high.","
+
+This accommodation is quite detached and has limited conversation unless you initiate. It is located very conveniently since the main station providing service to the airport is both close in proximity and secluded. Furthermore, the metro stops nearby, making transportation easy. The hotel room rooms are miniscule, lacking storage and with only a shower in the toilet, but the beds are comfortable and the housekeeping is satisfactory. The restaurants around have great breakfasts and even if the quality of food is not top-notch, the hotel does provide an incredible variety of dishes at their buffet.","
+
+This hotel is conveniently situated near the railway station and the personnel are very accommodating. This is an excellent accommodation option.",0.7601825637900704
+gen,test,30,"
+
+This accommodation is definitely worth what you pay. Many content customers have stayed here, though the cigarette smoke can still keep guests awake. It is situated in a great spot, near to the Grand Bazaar and the Blue Mosque, as well as a beach, where you can go for a jog. The bedrooms are neat, pristine, and comfy, particularly those on the sixth floor. There is complimentary wifi in the lounge and drinks, making this an excellent value.","
+
+This establishment in Istanbul enjoys an ideal location with vistas of the Bosphorus, proximity to eateries and shopping, and is a short walk to the historical downtown. Large, comfortable guest rooms come well-equipped with all the necessary features, boast beautifully executed turndown services, and even give you something extra in the form of bathrobes. Unfortunately, the facility's management staff is not as strong as its welcoming personnel, while the security is lacking. Internet access is available but comes at a daily charge of $25.","
+
+The hotel is situated close to the Bosphorus and the personnel are pleasant and accommodating",0.7411935559210846
+gen,test,31,"
+
+The Metropark Kowloon is a great option for an extended stay, as it offers easy access to local activities following a long day of sightseeing. Moreover, the hotel rooms are tidy and outfitted with functional air conditioning. The food served in the restaurant is of high quality and offers a great selection. As an additional bonus, the hotel can provide complimentary transportation to Mong Kok and the waterfront. The Ladies Market is conveniently within walking distance, or you can hop on the hotel bus for a direct route.","
+
+The Langham Place Hotel is a four-star accommodation situated smack in the middle with nearby access to a mall and a movie theater. The room provided was attractive, adorned with a captivating view; unfortunately, the bed was somewhat too unyielding to be deemed comfy. The spa services are remarkable and the personnel highly obliging. Although their buffet meals, sodas, and snacks are relatively costly, the club floor facilities make up for it and its guests can confidently attest to its value.","
+
+The personnel at the hotel were very accommodating. The guest chambers were tidy and the morning meal they",0.8294531806037917
+gen,test,32,"
+
+The Colonnade Hotel is an ideal choice for graduations or joint recreational trips, far exceeding other hotels in the vicinity. Its location is outstanding - directly beside the T connection, two sizeable shopping places, many eateries, and the Hynes Convention Center. The hotel's rooms boast large, pristine and cozy areas. Unfortunately, the showerhead was uncomfortable and water pressure was inadequate. The personnel at this hotel offer fantastic service from check-in to check-out, Norman Maines being a remarkable receptionist and customer supporter.","
+
+The Boston Park Plaza Hotel offers excellent quality and a great blend of traditional ambiance and modern convenience. It is ideally situated close to the Boston Garden and a short walk away from the Arlington St subway station. The rooms are small, but are well-equipped with all you need for a pleasant rest. The employees there were very courteous and accommodating. The restaurant offered sufficient food, though there was an extra fee to access the WiFi in the room.","
+
+The personnel at the hotel were incredibly accommodating and affable. The lodgings were",0.6587274687367835
+gen,test,33,"
+
+The Pullman hotel enjoys an excellent location close to the seaside spots of Port Olympic, the Beach and Barcelonetta, all within a reasonable distance to walk. Both pools, one of which on the rooftop and with its own bar, are commendable, while the rooms are sizeable and nicely equipped, offering impressive amenities. The bed is extremely cozy and the bathroom is extremely lavish. All the staff are very pleasant and accommodating. The cuisine is varied and nicely brings together a wide variety of tastes. The only drawback is the absence of English TV channels.","
+
+This hotel is outstanding and an incredible experience. It takes only 10 minutes to walk into town and a little over a quarter of an hour to get to Port Olympic. From there, the stroll is quite long and takes around 15-20 minutes. The rooms are large, tidy and offer a free-of-charge mini bar (non-alcoholic items only). Moreover, the breakfast buffet is brimming with delectable pastries, bread and cheeses.","
+
+This accommodation is conveniently close to the downtown area and the personnel are really friendly and accommodating. It is highly",0.7924925078881185
+gen,test,34,"
+
+The La Quinta Hotel Chicago is an excellent mid-level chain accommodation. Its position is excellent since it is located near the Willis Tower and other spots of interest. Public transportation is easy to access, and the hotel is not far from most attractions within the downtown area. The rooms were very roomy yet outdated, but the bathrooms were huge. The meals were great, and the continental breakfast was delightful. The only issue was when a very windy period happened between 3 and 4am and the flags outside the windows kept hitting them. The premises were spotless, orderly and the staff were extremely friendly.","
+
+Hotel 71 is an economical option compared to other hotels in the area and the scenery of the river plus the snowfall was stunning. The room boasted a large bathroom with both a shower and a tub, as well as two sinks. It was very tidy. The receptionists were friendly and welcoming, and the valet service was highly proficient. Moreover, there was no soda vending machine and the toilet paper quality was slightly lower than expected for such an exquisite hotel.","
+
+The personnel at the hotel were amiable and accommodating. The accommodations were spick and span and the",0.714800650019384
+gen,test,35,"
+
+The hotel is located ideally near the Blue Mosque, Grand Bazaar, and in the center of the ancient city of Istanbul in proximity to the tram and bus stops. Moreover, the awesome panoramic views of the town and sea from the roof make it even more attractive. The rooms are cozy, yet sufficient for a brief stay. The personnel at the hotel were very polite and amiable, though there was no toothbrush. Additionally, free Wi-Fi in the lobby area came as an unexpected bonus.","
+
+Staying at the Conrad Istanbul is a great choice whether you're travelling for business or pleasure and its prices are much better than other places in the hospitality industry. The proximity to the city makes it great for business trips, though you may be in the cab longer than expected. The stunning views of the Bosporus are testimony to this, though the rooms are a bit outdated and have a strange cigarette aroma. The staff are incredibly helpful and friendly, and breakfast offers a plentiful selection, although it can become quite busy at peak hours. The gym facilities and Wi-Fi are great, and the only negatives are that you need to pay extra to","
+
+The hotel is perfectly situated for a business outing and its personnel are very cordial and beneficial.",0.8773557592731426
+gen,test,36,"
+
+This hotel by the Central Station in Amsterdam is a great choice for a good rate. While the rooms may be a bit on the smaller side, they provide great value. With reasonable pricing and being centrally located in the pleasant Jordaan area, it offers a terrific experience. Additionally, the hotel offers a continental breakfast with toast, jams, tea and coffee, as well as free access to the internet.","
+
+The hotel offers a tranquil waterfront location next to the cruise ship terminal, though it is located quite a distance from the downtown area to be within walking distance. The rooms feature open toilets, however, some do not. The television signal on the premises isn't optimal, and service staff may forget to follow through on their tasks. The restaurant downstairs has a nice selection of wines by the glass for purchase, with the meals being both flavorful and expensive.","
+
+The personnel at this lodging are amiable and the lodgings are neat. This is",0.7772239557837768
+gen,test,37,"
+
+This lodging is totally worth the price, particularly if you're a Marriott points member. The hotel is stationed on Key West, though a shuttle service to downtown Key West is available, it would have been preferable to be walking distance away. The room was very beautiful and the bathrooms had jetted tubs to boot and a sizable stand-up shower. The only slight disappointment was the powdered eggs in the breakfast which came at an extra cost of $4 per person.","
+
+Parrot Key is the optimal pick for Fantasy Fest; just three hours away, but seemingly a world away. The rooms are out of this world and the ocean views from the spacious suite lodgings are something to behold. The accommodating staff make you feel like a VIP, though the only thing that may be missing is a washer/dryer.","
+
+The personnel at the hotel were quite accommodating and the accommodations were tidy. This is an ideal location to seek lodging",0.7563300375812877
+gen,test,38,"
+
+The hotel appears to be in excellent condition from their website. It is very close to San Marco Piazza, a terrific spot for meals. The accommodations are vast and well cared for, and also very tidy. The proprietors of the hotel were quite friendly and accommodating to their customers. There was an outstanding selection of food for breakfast. The only disadvantage to this hotel is that there is not an on","
+
+This hotel does justice to the favorable comments people have made about it, and guests have great visibility of the Grand Canal. Tourist spots are easily accessed via a short stroll, or one can sit on the veranda and catch a glimpse of life in Venice. The sleeping and living areas are adequately lit and pristine. The lavatories, while small, serve the purpose. The hotel employees are top-notch and will be more than glad to offer directions, sightseeing information and restaurant suggestions. The hotel is secluded, since it stands opposite the Santa Lucia Train Station, and the only item to cross to reach the accommodation is one's luggage.","
+
+The hotel is situated in an excellent area to view the sights. The personnel were extremely friendly and oblig",0.7662036937505861
+gen,test,39,"
+
+The hotel offers a genuine Ottoman atmosphere and is close by to all the noteworthy attractions in Sultanahmet, such as the Blue Mosque, Haghia Sofia, and the Hippodrome. The view right outside the hotel is remarkable and one can stroll to all the sites without becoming exhausted. The hotel rooms, while small and requiring some renovation, are tidy and in good condition. Additionally, the personnel at the hotel are friendly and accommodating. A superb place to savor Turkish pastries and beverages, with awesome sights of the Bosphorus and the surroundings, is the Turkish Delights situated on the roof.","
+
+Basileus Hotel was highly recommended to us by InshaAllah, and was a great choice. This three-story property was sparkling clean and well-maintained, with spacious and decent sized rooms. Unfortunately, there's no restaurant or elevator, though it still proves to be a great deal for the money. It's in a fantastic location that's close to Sultanhamet's must-see attractions - just a 10-minute uphill walk to get to the Blue Mosque, Aya Sophia, Basilica Cisterns, a small bazaar, a tramway, ATMs, and money exchanges. Grand Bazaar and the main","
+
+The personnel at the hotel are accommodating and obliging. There is a close proximity to a few of the primary attractions by",0.6948830858507062
+gen,test,40,"
+
+This hotel provides an ideal place to stay for day, located near the Raffles Centre and the MRT station, with convenient access to Burger King and a 7-Eleven shop, where one can buy inexpensive bottled water. The hotel is well kept, although its rooms seem a bit outdated. The air conditioning works great, yet the power cable wasn't attached. Furthermore, the staff was pleasant and gave helpful tips about places to eat. The only condition to be careful of at this hotel is the high marble strip placed between the main room and the bathroom, which could cause pain in one's toes if not handled cautiously.","
+
+The hotel has a nostalgic feel and is conveniently located in the commercial district of Singapore. It is among the only few hotels situated in the financial hub and is a great starting point for any journey. The rooms are much larger than typical ones found in the city. Operating the restroom requires climbing up the stairs, contrary to the traditional inner-hotel placement. The food offered at the hotel is rather tasteless and pricy. Furthermore, the swimming pool could be maintained better while people utilize it.","
+
+The personnel at the accommodation are extremely cordial and beneficial. The chambers are neat and",0.6933642827237817
+gen,test,41,"
+
+This hotel offers a great price for an excellent location. It's a brief stroll away from the MRT Station, Clarke Quay, the National Museum and more. Non-smoking rooms are available, though no WiFi can be found inside; rooms that haven't yet been renovated are falling apart. The service received was remarkable and the staff were extremely pleasant and beneficial. The buffet breakfast and dinner meals were refreshed on a regular basis. There is a pool though unfortunately, the area has a smoky smell.","
+
+The hotel is a luxurious and contemporary building with a connected shopping center and gathering spot. It is closely connected to the Bayfront MRT station, which gives access to many amenities that are close by. The room was expansive, boasting a large bathroom with a separate shower. The service personnel were all very cordial. Though the food at the Fuse Lounge is a bit pricey and unsatisfactory, the atmosphere of the surrounding lounge area is inviting with a lot of people gathering there. The layout of the mall is a bit befuddling.","
+
+The staff at the hotel was incredibly accommodating and amiable. It is an excellent hotel, highly recommended.",0.7050236000350749
+gen,test,42,"
+
+The Swissotel Sydney On Market Street is a cozy hotel with a pleasant aura. It is conveniently located to a great variety of sights, including the town hall rail station and the town hall station, which are both within a short jaunt. The rooms in the hotel are comfortable and tidy, though the bathrooms are quite petite with a miniscule shower. Unfortunately, the food provided by the hotel was quite limited and the rates were more than what was stated on their website.","
+
+This hotel is not up to the same standards of many other Four Seasons resorts across the globe; however, it is situated in a great spot if you wish to be close to the Rocks without being distant from Chinatown and other bars. The view from the room was good, though partially obscured by buildings. The bed was massive and the toiletries provided were lovely. Generally the staff of this hotel have been well trained, yet the lack of free internet access was unexpected at such an expensive accommodation.","
+
+The hotel's spot is exceptional and it is not far from the attractions. Everyone working at the hotel was very courteous and supportive",0.7734662538359123
+gen,test,43,"
+
+This hotel is great in terms of both affordability and style. Call them up to get the room you desire. It is situated in a fantastic spot next to Le Pont Neuf, wherein there are many cafes and bakeries. All the rooms are designed by well-known designer Christian Lacroix - some of which may be over-the-top for a few people, such as the one featuring the flock wallpaper and massive bathroom. Despite the luxurious design, the room is incredibly calming and fitted with any modern amenities necessary for a comfy stay.","
+
+This hotel was a great find in a beautiful atmosphere. Not too far from the metro and within walking distance of the downtown area of Paris, we were able to enjoy the experience of the city without breaking our budget. We had a lovely view from the room of the canal leading up to the rotunda. Just a five-minute trip from the metro station, it's a convenient transportation option. The staff were incredibly friendly, not even offering an apology afterwards. Breakfast provided enough to feed us adequately, with hot menu options. The only drawback was that one of the lifts was closed, but this wasn't a significant issue to us.","
+
+The accommodation is close to public transportation and the personnel is very accommodating. It is strongly suggested that this",0.8920975903076416
+gen,test,44,"
+
+This place for accommodation is a prime spot, especially for a novice visitor in Montreal. Its interior design surpasses any that the Museum of Contemporary Art has to show and each room is uniquely charming, with its own comfortable atmosphere, antique furnishings, and features which remember its past life as a bank, such as Suite 318 being previously a vault. Furthermore, the artwork in the lobby bar brings a very welcoming air to the hotel. Additionally, valet parking is another great convenience.","
+
+Hotel Vogue is conveniently placed for a retail outing in Montreal, close enough to Ogilvy (the leading department store in town, in my opinion), but also just a short distance from Ste. Catherine Street, Sherbrooke Street and Crescent Street. Its setting is brilliant for buying and for supper. The rooms are sizable, hygienic, and have satisfactory showers. The bathrooms are somewhat outdated, but the force of the shower is enjoyable. The hotel bar is expensive, but generally good.","
+
+The hotel resides in an ideal spot and the workers are incredibly pleasant and accommodating.",0.8461372087151141
+gen,test,45,"
+
+Hotel Cielo is an ideal choice for those visiting Playa Del Carmen for the first time - it's situated perfectly for something for everyone! There are lots of great eateries on 4th Street, and horseback riding is available only a couple of minutes away at Rancho Punto Venado, where you can enjoy a blissful beach and some ATVs as well. The larger rooms at this hotel have a great price point to them. Henery, the concierge, was incredibly helpful and afforded us with plenty of information, as well as arranging","
+
+The Fairmont Mayakoba Resort is a superb lodging destination that is worth every penny, although it is pricey. With its lakes and a golf course up to PGA standards, the resort provides wonderful amenities, such as comfy rooms that include amazing outlooks and lounge chairs. The food, while not strictly Mexican, is amazingly tasty. The hotel could have given an explanation for why there was no Welcome Drink, but","
+
+The personnel at the hotel are very accommodating and caring. This is an excellent establishment to stay in",0.8068633755119059
+gen,test,46,"
+
+This cozy abode is the ideal choice for couples, families, or anyone searching for a peaceful getaway from the lively bustle of the popular tourist sites. Situated along the illustrious Grand Canal and nearby the Salute Church, the magnificent view from the rooftop terrace and breakfast area is incomparable. Not only is the room spacious, it has a Venetian finish as well. The staff are exceedingly polite and clearly understand the English language, with no difficulty. Moreover, though not advertised, there is a simple lunch menu available which you can enjoy in the rooftop terrace, breakfast room, or in.","
+
+Canal Grande is an exquisite accommodation offering up-to-date features, with a beautiful view of the canal or the square, apt for romantic occasions. It is conveniently situated near Piazzale Roma for easy parking and access to the vaporetos. The guestrooms are tastefully furnished and fitted with modern amenities. The staff were incredibly welcoming and accommodating. The croissants were incredibly fresh and appetizing.","
+
+The staff at the hotel were very accommodating and pleasant. It is highly recommended and an excellent place to stay.",0.9126214125116888
+gen,test,47,"
+
+We were delighted with our stay at the Oceania hotel, which had been suggested by Rick Steves. It is situated in a terrific spot, located on a tranquil alley right beside the Piazza della Repubblica, close to the subway and a hop-on, hop-off sightseeing bus station. The living spaces in the hotel are roomy and cared for, and the washroom has been remade. The bed was not too cozy, however the proprietor of the hotel spoke English fluently and gave us some pointers for eating places. Furthermore,","
+
+Hidden away in Trastevere, away from the crowds, the hotel is a great base for exploring Rome and visiting the Vatican. Its cobblestoned streets, filled with restaurants, give it a charming, old-world feeling. While the sound from the floors and doors can be a bit loud, the security gates help to keep the noise out. The mornings are pleasant, with tasty foods being served in the orange-tree courtyard and free internet being offered around the breakfast tables. Although the hotel staff don't seem to be frequently around, they do manage to keep the room spotless.","
+
+The personnel at the lodge were tremendously cooperative and hospitable. The rooms were tidy and",0.7969564401198487
