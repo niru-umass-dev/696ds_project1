@@ -178,7 +178,7 @@ for summ_type in summ_orig:
                     results_path = f"data/results/{metric}_{nli_component}_{summ_type}_{dataset}_{label}.csv"
                     if not os.path.isfile(results_path):
                         print(f"Not Found:{results_path}")
-                        records = get_nli_scores(data_type=dataset, component=nli_component,summ_type=summ_type, alphas=label_alpha_combs[label])
+                        records = get_nli_scores(data_type=dataset, component=nli_component,summ_type=summ_type, alphas=label_alpha_combs[label], run=run)
                         df = pd.DataFrame.from_records(records, columns = ['summ_type','split','example_id', 'summ_a', 'summ_b', 'summ_comm', f'{metric}_{nli_component}_{label}_score'])
                         df.to_csv(results_path, index=False)
                         wandb.save(results_path)
@@ -189,7 +189,7 @@ for summ_type in summ_orig:
                 results_path = f"data/results/{metric}_{nli_component}_{summ_type}_{dataset}.csv"
                 if not os.path.isfile(results_path):
                     print(f"Not Found:{results_path}")
-                    records = get_nli_scores(data_type=dataset, component=nli_component,summ_type=summ_type, alphas=None)
+                    records = get_nli_scores(data_type=dataset, component=nli_component,summ_type=summ_type, alphas=None, run=run)
                     df = pd.DataFrame.from_records(records, columns = ['summ_type','split','example_id', 'summ_a', 'summ_b', 'summ_comm', f'{metric}_{nli_component}_score'])
                     df.to_csv(results_path, index=False)
                     wandb.save(results_path)
