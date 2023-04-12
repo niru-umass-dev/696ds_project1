@@ -6,6 +6,7 @@ import os
 import pandas as pd
 import json
 from transformers import GPT2TokenizerFast
+import argparse
 from paraphrase import (
     get_para_dataset,
     get_selfpara_dataset,
@@ -33,6 +34,16 @@ et_timezone = pytz.timezone('US/Eastern')
 now = datetime.now(et_timezone)
 datetime_string = now.strftime("%Y%m%d_%H%M%S")
 
+## parse args
+parser = argparse.ArgumentParser(
+                    prog='Experiments',
+                    description='Main Experiment Pipeline',
+                    epilog='')
+parser.add_argument('-r', '--name')
+parser.add_argument('-n', '--notes')
+args = parser.parse_args()
+
+
 
 ## Hyperparameters
 summ_orig = ["ref", "gen"]
@@ -57,9 +68,9 @@ experiments = {
 run = wandb.init(
     # set the wandb project where this run will be logged
     project="696ds-contrastive-summ-eval",
+    name=args.name,
     # track hyperparameters and run metadata
     config={
-        
         "summ_orig": summ_orig, # Are we analyzing reference or generated summaries or both
         "summ_models": ["cococsum"], # if generated, then the model which generates the summaries
         "metrics": metrics, # metrics we are computing
@@ -68,9 +79,9 @@ run = wandb.init(
         "experiments": experiments,
         "timestamp": datetime_string,
     },
-    notes = "Trying out NLI aggregation methods"
+    notes = args.notes
 )
-run_folder = f"{datetime_string}_{run.name}"
+
 if not os.path.isdir("data/results"):
     os.mkdir("data/results")
 
@@ -186,8 +197,9 @@ for summ_type in summ_orig:
                     
 # EXPERIMENT 1: RESULTS
 
-if not os.path.isdir("data/results/experiment_paraphrase"):
-    os.mkdir("data/results/experiment_paraphrase")
+experiment_summ_folder = f"data/results/{datetime_string}_{run.name}"
+if not os.path.isdir(experiment_summ_folder):
+    os.mkdir(experiment_summ_folder)
 
 headers = []
 for summ_type in summ_orig:
@@ -208,7 +220,7 @@ for summ_type in summ_orig:
                 scores = pd.read_csv(file_path)[col_name].to_list()
                 
                 mean, std_dev, corr, rank_corr, plt = get_centtend_measures(base_scores, scores)
-                plt.savefig(f"data/results/experiment_paraphrase/{summ_type}_{metric}_{dataset}.png")
+                plt.savefig(os.path.join(experiment_summ_folder, f"{summ_type}_{metric}_{dataset}.png"))
                 
                 record.extend([mean, std_dev, corr, rank_corr])
                 metric_header_name = metric
@@ -226,7 +238,7 @@ for summ_type in summ_orig:
                     scores = pd.read_csv(file_path)[col_name].to_list()
                     
                     mean, std_dev, corr, rank_corr, plt = get_centtend_measures(base_scores, scores)
-                    plt.savefig(f"data/results/experiment_paraphrase/{summ_type}_{metric}_{nli_component}_{label}_{dataset}.png")
+                    plt.savefig(os.path.join(experiment_summ_folder, f"{summ_type}_{metric}_{nli_component}_{label}_{dataset}.png"))
                     
                     record.extend([mean, std_dev, corr, rank_corr])
                     metric_header_name = f"{metric}_{nli_component}_{label}"
@@ -245,14 +257,16 @@ for summ_type in summ_orig:
                     scores = pd.read_csv(file_path)[col_name].to_list()
                 
                 mean, std_dev, corr, rank_corr, plt = get_centtend_measures(base_scores, scores)
-                plt.savefig(f"data/results/experiment_paraphrase/{summ_type}_{metric}_{nli_component}_{dataset}.png")
+                plt.savefig(os.path.join(experiment_summ_folder, f"{summ_type}_{metric}_{nli_component}_{dataset}.png"))
                 
                 record.extend([mean, std_dev, corr, rank_corr])
                 metric_header_name = f"{metric}_{nli_component}"
                 headers.extend([f"mean({metric_header_name})", f"std_dev({metric_header_name})", f"corr({metric_header_name})", f"rank_corr({metric_header_name})"])
     
         records.append(record)
-    pd.DataFrame(records, columns = headers).to_csv(f"data/results/experiment_paraphrase/{summ_type}_summary.csv", index=False)
+    experiment_summ_path = os.path.join(experiment_summ_folder,f"{summ_type}_experiment_paraphrase_summary.csv")
+    pd.DataFrame(records, columns = headers).to_csv(experiment_summ_path, index=False)
+    wandb.save(experiment_summ_path)
             
 
 

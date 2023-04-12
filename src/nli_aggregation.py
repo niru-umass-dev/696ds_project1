@@ -9,7 +9,7 @@ def get_nli_scores(data_type, component, summ_type, alphas = (0,0,0)):
         alpha_ent = alphas[0]
         alpha_neut = alphas[1]
         alpha_cont = alphas[2]
-        nli_scores = nli_contrast_real_neut(data_path=data_path,pairwise_aggregation='sum',alphas=(alpha_ent,alpha_neut,alpha_cont), summ_type=summ_type)
+        nli_scores = nli_contrast_bin_neut(data_path=data_path,pairwise_aggregation='sum',alphas=(alpha_ent,alpha_neut,alpha_cont), summ_type=summ_type)
         
     elif component == 'factuality':
         nli_scores = nli_fact_bin_ent(data_path=data_path, summ_type=summ_type)
