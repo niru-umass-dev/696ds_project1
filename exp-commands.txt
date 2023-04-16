@@ -2,3 +2,4 @@ python3 src/experiments.py -r paraphrase-realneut-01 -n "Only change from experi
 python3 src/experiments.py -r paraphrase-binneut-01 -n "Now trying with binary neutrality values"
 python3 src/experiments.py -r paraphrase-binall-01 -n "Now trying with binary treatment of all labels taking ['label', 'neutral] as 'label' "
 python3 src/experiments.py -r paraphrase-binreal-01 -n "Now trying with binary treatment of all labels taking ['label', 'neutral] as 'label' but also multiplying by taking max(ent1, ent2), max(cont1, cont2), avg(neut1, neut2) "
+python3 src/experiments.py -r paraphrase-binall-02 -n "Now scoring each sentence as cont if it's contradicted by atleast one statement, neutral if neutral to all, and ent otherwise. Individual comparison labels are scored in favour of CONTRADICTION/ENTAILMENT if clashing with NEUTRAL in other direction"
