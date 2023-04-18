@@ -124,16 +124,17 @@ for dataset in datasets:
         file_path = f"data/results/sentpairs_nli_contrast_{summ_type}_{dataset}.csv"
         if not os.path.isfile(file_path):
             print(f"Not Found:{file_path}")
-            nli_metric = SummNLI(data_path=data_path, data_type=dataset, summ_type=summ_type)
+            # nli_metric = SummNLI(data_path=data_path, data_type=dataset, summ_type=summ_type)
+            nli_metric = SummNLI(data_path=data_path, data_type=dataset, summ_type=summ_type, summ_sent=True)
             nli_metric.compute()
         
         file_path = f"data/results/sentpairs_nli_factuality_{summ_type}_{dataset}.csv"
         if dataset == 'base' and not os.path.isfile(file_path):
             print(f"Not Found:{file_path}")
-            nli_metric = SummNLI(data_path=data_path, data_type=dataset, summ_type=summ_type)
+            # nli_metric = SummNLI(data_path=data_path, data_type=dataset, summ_type=summ_type)
+            nli_metric = SummNLI(data_path=data_path, data_type=dataset, summ_type=summ_type, summ_sent=True)
             nli_metric.compute()
 
-            
             
 ## Create entity-pair level DS, BS, and NLI Scores for base, paraphrase, and selfparaphrase datasets
 
