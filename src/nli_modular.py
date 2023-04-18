@@ -586,7 +586,7 @@ class SummNLI:
             count += 1
 
         # summ a -- sent comm
-        for i in a_sum:
+        for i in comm_sum:
             p1.append(whole_a)
             sent_p2.append(i)
             summ1_ent.append('a')
@@ -594,8 +594,8 @@ class SummNLI:
             count += 1
 
         # summ b -- sent comm
-        for i in b_sum:
-            p1.append(whole_comm)
+        for i in comm_sum:
+            p1.append(whole_b)
             sent_p2.append(i)
             summ1_ent.append('b')
             sent2_ent.append('comm')
