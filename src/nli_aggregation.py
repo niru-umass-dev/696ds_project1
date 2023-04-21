@@ -14,8 +14,9 @@ def get_nli_scores(data_type, component, summ_type, alphas = (0,0,0), run=None):
         # nli_scores = nli_contrast_real_neut(data_path=data_path,pairwise_aggregation='sum',alphas=(alpha_ent,alpha_neut,alpha_cont), summ_type=summ_type, run=run)
         # nli_scores = nli_contrast_bin_neut(data_path=data_path,pairwise_aggregation='sum',alphas=(alpha_ent,alpha_neut,alpha_cont), summ_type=summ_type, run=run)
         # nli_scores = nli_contrast_bin_all(data_path=data_path,pairwise_aggregation='sum',alphas=(alpha_ent,alpha_neut,alpha_cont), summ_type=summ_type, run=run)
-        nli_scores = nli_contrast_bin_all_2(data_path=data_path,pairwise_aggregation='sum',alphas=(alpha_ent,alpha_neut,alpha_cont), summ_type=summ_type, run=run)
+        # nli_scores = nli_contrast_bin_all_2(data_path=data_path,pairwise_aggregation='sum',alphas=(alpha_ent,alpha_neut,alpha_cont), summ_type=summ_type, run=run)
         # nli_scores = nli_contrast_bin_real(data_path=data_path,pairwise_aggregation='mixed',alphas=(alpha_ent,alpha_neut,alpha_cont), summ_type=summ_type, run=run)
+        nli_scores = nli_contrast_bin_all_summ_level(data_path=data_path,pairwise_aggregation='sum',alphas=(alpha_ent,alpha_neut,alpha_cont), summ_type=summ_type, run=run)
         
     elif component == 'factuality':
         nli_scores = nli_fact_bin_ent(data_path=data_path, summ_type=summ_type)
@@ -39,7 +40,8 @@ def get_nli_scores(data_type, component, summ_type, alphas = (0,0,0), run=None):
 
 def nli_fact_bin_ent(data_path: str = "data/factuality_popular_final.csv", summ_type='ref') -> List[float]:
     df = pd.read_csv(data_path)
-    df['is_ent'] = df.apply(lambda row: 1 if row['1_2_Label']=='ENTAILMENT' or row['2_1_Label']=='ENTAILMENT' else 0, axis = 1)
+    # df['is_ent'] = df.apply(lambda row: 1 if row['1_2_Label']=='ENTAILMENT' or row['2_1_Label']=='ENTAILMENT' else 0, axis = 1)
+    df['is_ent'] = df.apply(lambda row: 1 if row['1_2_Label']=='ENTAILMENT' else 0, axis = 1)
     # display(df)
     pivot_sent = df.pivot_table(values = ['is_ent'], index = ['Type','Sample', 'Sent2_entity','Sentence2'], aggfunc = 'sum', fill_value = 0).reset_index().rename(mapper={'Sent2_entity':'summary' ,'Sentence2':'sentence'}, axis=1)
     # display(pivot_sent)
@@ -86,7 +88,16 @@ mapper_sent2 = {
     '1_2_cont': 'bwd_cont',
     '1_2_Label': 'bwd_label',
 }
-
+mapper_summ_sent = {
+    'Summary1': 'summ',
+    'Sentence2': 'sentence',
+    'Summary1_entity': 'summ_entity',
+    'Sent2_entity': 'sent_entity',
+    '1_2_neut': 'neut',
+    '1_2_cont': 'cont',
+    '1_2_ent': 'ent',
+    '1_2_Label': 'label',
+}
 
 def resolve_labels(row):
     if row['fwd_label'] == row['bwd_label']:
@@ -480,4 +491,70 @@ def nli_contrast_bin_all_2(data_path: str, pairwise_aggregation: str = 'sum', al
 
     print(f"Mean score = {np.mean(scores)}")
     return scores
+
+def nli_contrast_bin_all_summ_level(data_path: str, pairwise_aggregation: str = 'sum', alphas: Tuple = (0, 1, 1),
+                                    summ_type='ref', run=None) -> List[float]:
+    alphas_dict = {
+        'ENTAILMENT': (alphas[0], 'ent'),
+        'NEUTRAL': (alphas[1], 'neut'),
+        'CONTRADICTION': (alphas[2], 'cont'),
+    }
+
+    # transform df to sent level instead of comparison level
+    df = pd.read_csv(data_path)
+    print(f"Length of initial dataframe = {len(df)}")
+    df = df.rename(mapper=mapper_summ_sent, axis=1)
+    print(f"Length of sent level df = {len(df)}")
+
+    df['score'] = df.apply(lambda row: alphas_dict[row['label']][0], axis=1)
+    # log the df to wandb
+    table = wandb.Table(dataframe=df)
+    run.log({'contrast_summ_sent_level_score': table})
+
+    pivot_sent = df.pivot_table(
+        values=['score'],
+        index=['Type', 'Sample', 'sent_entity', 'sentence'],
+        aggfunc='mean',
+        fill_value=0
+    ).reset_index()
+    print(f"Length of pivot_sent = {len(pivot_sent)}")
+    # log the df to wandb
+    table = wandb.Table(dataframe=pivot_sent)
+    run.log({'contrast_sent_level_score': table})
+
+    pivot_entity = pivot_sent.pivot_table(
+        values=['score', 'sentence'],
+        index=['Type', 'Sample', 'sent_entity'],
+        aggfunc={
+            'score': ['mean', 'sum'],
+            'sentence': ['count'],
+        },
+        fill_value=0
+    )
+    pivot_entity.columns = list(map("_".join, pivot_entity.columns))
+    print(f"Length of pivot_entity = {len(pivot_entity)}")
+    # log the df to wandb
+    table = wandb.Table(dataframe=pivot_entity.reset_index())
+    run.log({'contrast_entity_level_score': table})
+
+    pivot_sample = pivot_sent.pivot_table(
+        values=['score', 'sentence'],
+        index=['Type', 'Sample'],
+        aggfunc={
+            'score': ['mean', 'sum'],
+            'sentence': ['count'],
+        },
+        fill_value=0
+    )
+    pivot_sample.columns = list(map("_".join, pivot_sample.columns))
+    print(f"Length of pivot_sample = {len(pivot_sample)}")
+    # log the df to wandb
+    table = wandb.Table(dataframe=pivot_sample.reset_index())
+    run.log({'contrast_sample_level_label_score': table})
+
+    scores = pivot_sample[pivot_sample.index.isin([summ_type], level=0)]['score_mean'].to_list()
+
+    print(f"Mean score = {np.mean(scores) * 100}")
+    return scores
+
 # endregion contrast
