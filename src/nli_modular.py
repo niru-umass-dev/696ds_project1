@@ -476,24 +476,32 @@ class SummNLI:
         labels = []
         prob = []
         combined_list = []
-
-        if self.summ_sent == True:
-
-            if rev == True:
-                for s1, s2 in zip(sent2, sent1):
-                    combined_list.append(s1 + "<SEP>" + s2)
-            else:
-                for s1, s2 in zip(sent1, sent2):
-                    combined_list.append(s1 + "<SEP>" + s2)
-
+        
+        
+        if rev == True:
+            for s1, s2 in zip(sent2, sent1):
+                combined_list.append(s1 + "<SEP>" + s2)
         else:
+            for s1, s2 in zip(sent1, sent2):
+                combined_list.append(s1 + "<SEP>" + s2)
 
-            if rev == True:
-                for s1, s2 in zip(sent2, sent1):
-                    combined_list.append(s1 + ' ' + s2)
-            else:
-                for s1, s2 in zip(sent1, sent2):
-                    combined_list.append(s1 + ' ' + s2)
+#         if self.summ_sent == True:
+
+#             if rev == True:
+#                 for s1, s2 in zip(sent2, sent1):
+#                     combined_list.append(s1 + "<SEP>" + s2)
+#             else:
+#                 for s1, s2 in zip(sent1, sent2):
+#                     combined_list.append(s1 + "<SEP>" + s2)
+
+#         else:
+
+#             if rev == True:
+#                 for s1, s2 in zip(sent2, sent1):
+#                     combined_list.append(s1 + ' ' + s2)
+#             else:
+#                 for s1, s2 in zip(sent1, sent2):
+#                     combined_list.append(s1 + ' ' + s2)
 
         results = self.pipe(combined_list)
 
