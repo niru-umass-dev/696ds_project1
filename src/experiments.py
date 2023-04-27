@@ -119,7 +119,7 @@ if 'selfparaphrase' in experiments and not os.path.isfile("data/combined_data_se
 
 for dataset in datasets:
     for summ_type in summ_orig:
-        data_path = f"data/combined_data_{dataset}.json"
+        data_path = f"data/combined_data_{dataset}_split.json"
         
         file_path = f"data/results/sentpairs_nli_contrast_{summ_type}_{dataset}.csv"
         if not os.path.isfile(file_path):
