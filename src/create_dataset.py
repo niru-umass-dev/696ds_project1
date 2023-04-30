@@ -1,6 +1,5 @@
 import json
 import os
-from src.trivial_baseline_utils import check_written_dataset
 
 
 ## UTILITY FUNCTIONS TO PREP, MODIFY, SANITY-CHECK DATA
