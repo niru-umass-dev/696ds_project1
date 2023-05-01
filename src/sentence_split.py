@@ -1,5 +1,5 @@
 ### Sentence Splitter Class
-from src.prompt import SPLIT_PROMPT
+from src.prompt import SPLIT_PROMPT, SYSTEM_PROMPT, USER_PROMPT
 import nltk
 import openai
 from typing import List
@@ -15,20 +15,31 @@ class SentenceSplitter:
         return
     
     @backoff.on_exception(backoff.expo, openai.error.RateLimitError)
-    def _split_(self, prompt):
-        return openai.Completion.create(
-            # model="text-davinci-003",
+    def _split_(self, system_prompt, user_prompt):  # prompt):
+        # return openai.Completion.create(
+        #     model="text-davinci-003",
+        #     prompt=prompt,
+        #     max_tokens=256,
+        #     n=1
+        # )['choices'][0]
+        return openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            prompt=prompt,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
             max_tokens=256,
+            temperature=0.5,
             n=1
-        )['choices'][0]
+        )['choices'][0].message
     
     def split(self, complex_sent: str) -> List[str]:
         if self.dummy:
             return [f"{' '.join(['dummy'] * 10)}."] * 3
-        response = self._split_(SPLIT_PROMPT.format(complex_sent))
-        simple_sents_list_unprocessed = response['text'].split('\n')
+        # response = self._split_(SPLIT_PROMPT.format(complex_sent))
+        response = self._split_(SYSTEM_PROMPT, USER_PROMPT.format(complex_sent))
+        # simple_sents_list_unprocessed = response['text'].split('\n')
+        simple_sents_list_unprocessed = response['content'].split('\n')
         simple_sents_list = []
         for simple_sent in simple_sents_list_unprocessed:
             if simple_sent[:2] == '- ':
@@ -49,8 +60,8 @@ from src.create_dataset import check_written_dataset
 nltk.download('punkt')
 
 required_headers = {
-    'source_reviews_a',
-    'source_reviews_b',
+    # 'source_reviews_a',
+    # 'source_reviews_b',
     'refs_a',
     'refs_b',
     'refs_comm',
@@ -182,4 +193,4 @@ indexed_split_sent_dataset = get_indexed_simple_sent_dataset(sent_indexed_datase
 json.dump(indexed_split_sent_dataset, open("data/temporary_dataset_files/indexed_split_sent_dataset.json", "w"))
 
 paragraph_split_sent_dataset = get_paragraph_simple_sent_dataset(indexed_split_sent_dataset)
-json.dump(paragraph_split_sent_dataset, open("data/combined_data_base_split.json", "w"))
+json.dump(paragraph_split_sent_dataset, open("data/combined_data_base_split_gpt_turbo.json", "w"))
