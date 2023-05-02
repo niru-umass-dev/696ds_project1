@@ -60,8 +60,8 @@ from src.create_dataset import check_written_dataset
 nltk.download('punkt')
 
 required_headers = {
-    # 'source_reviews_a',
-    # 'source_reviews_b',
+    'source_reviews_a',
+    'source_reviews_b',
     'refs_a',
     'refs_b',
     'refs_comm',
@@ -193,4 +193,4 @@ indexed_split_sent_dataset = get_indexed_simple_sent_dataset(sent_indexed_datase
 json.dump(indexed_split_sent_dataset, open("data/temporary_dataset_files/indexed_split_sent_dataset.json", "w"))
 
 paragraph_split_sent_dataset = get_paragraph_simple_sent_dataset(indexed_split_sent_dataset)
-json.dump(paragraph_split_sent_dataset, open("data/combined_data_base_split_gpt_turbo.json", "w"))
+json.dump(paragraph_split_sent_dataset, open("data/combined_data_base_split.json", "w"))
