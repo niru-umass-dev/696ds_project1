@@ -60,8 +60,8 @@ from src.create_dataset import check_written_dataset
 nltk.download('punkt')
 
 required_headers = {
-    'source_reviews_a',
-    'source_reviews_b',
+    # 'source_reviews_a',
+    # 'source_reviews_b',
     'refs_a',
     'refs_b',
     'refs_comm',
@@ -135,11 +135,11 @@ def get_paragraph_simple_sent_dataset(source_dataset):
     return new_data
 
 
-def get_indexed_simple_sent_dataset(source_dataset):
-    if not os.path.isfile("data/temporary_dataset_files/completed_split_sent_ids.json"):
+def get_indexed_simple_sent_dataset(source_dataset, temp_folder_prefix=""):
+    if not os.path.isfile("data/temporary_dataset_files/" + temp_folder_prefix + "completed_split_sent_ids.json"):
         completed_sent_ids = {}
     else:
-        completed_sent_ids = json.load("data/temporary_dataset_files/completed_split_sent_ids.json")
+        completed_sent_ids = json.load("data/temporary_dataset_files/" + temp_folder_prefix + "completed_split_sent_ids.json")
     # print(len(sent_indexed_dataset))
     # print(json.dumps(sent_indexed_dataset[:2], indent=4))
     sentence_splitter = SentenceSplitter(dummy=False)
@@ -168,7 +168,7 @@ def get_indexed_simple_sent_dataset(source_dataset):
                     simple_sents_ids = [f"{sent_id}_{idx:03d}" for idx in range(0, len(simple_sents))]
                     simple_sent_dict = dict(zip(simple_sents_ids, simple_sents))
                     completed_sent_ids[sent_id] = simple_sent_dict
-                    json.dump(completed_sent_ids, open("data/temporary_dataset_files/completed_split_sent_ids.json", 'w'))
+                    json.dump(completed_sent_ids, open("data/temporary_dataset_files/" + temp_folder_prefix + "completed_split_sent_ids.json", 'w'))
                     new_paragraph[sent_id] = {
                         'sentence': sent,
                         'simple_sents': simple_sent_dict
@@ -184,13 +184,14 @@ def get_indexed_simple_sent_dataset(source_dataset):
     return simple_sent_dataset
 
 
-original_dataset = json.load(open("data/combined_data_base.json", 'r'))
+# source reviews are the same across all datasets (base, paraphrase, selfparaphrase)
+original_dataset = json.load(open("data/combined_data_paraphrase.json", 'r'))
 
 sent_indexed_dataset = get_sent_indexed_dataset(original_dataset)
-json.dump(sent_indexed_dataset, open("data/temporary_dataset_files/sent_indexed_dataset.json", "w"))
+json.dump(sent_indexed_dataset, open("data/temporary_dataset_files/paraphrase_split/sent_indexed_dataset.json", "w"))
 
-indexed_split_sent_dataset = get_indexed_simple_sent_dataset(sent_indexed_dataset)
-json.dump(indexed_split_sent_dataset, open("data/temporary_dataset_files/indexed_split_sent_dataset.json", "w"))
+indexed_split_sent_dataset = get_indexed_simple_sent_dataset(sent_indexed_dataset, temp_folder_prefix="paraphrase_split/")
+json.dump(indexed_split_sent_dataset, open("data/temporary_dataset_files/paraphrase_split/indexed_split_sent_dataset.json", "w"))
 
 paragraph_split_sent_dataset = get_paragraph_simple_sent_dataset(indexed_split_sent_dataset)
-json.dump(paragraph_split_sent_dataset, open("data/combined_data_base_split.json", "w"))
+json.dump(paragraph_split_sent_dataset, open("data/combined_data_paraphrase_split.json", "w"))
