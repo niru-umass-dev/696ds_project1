@@ -45,7 +45,10 @@ class SentenceSplitter:
             if simple_sent[:2] == '- ':
                 simple_sent = simple_sent[2:].strip(" ")
                 simple_sents_list.append(simple_sent)
-        return simple_sents_list
+        if len(simple_sents_list) == 0 and len(words:=nltk.word_tokenize(complex_sent.translate(str.maketrans('', '', string.punctuation)))) > 0:
+                return [complex_sent]
+        else:
+            return simple_sents_list
 
 
 import os
@@ -139,10 +142,10 @@ def get_indexed_simple_sent_dataset(source_dataset, temp_folder_prefix=""):
     if not os.path.isfile("data/temporary_dataset_files/" + temp_folder_prefix + "completed_split_sent_ids.json"):
         completed_sent_ids = {}
     else:
-        completed_sent_ids = json.load("data/temporary_dataset_files/" + temp_folder_prefix + "completed_split_sent_ids.json")
+        completed_sent_ids = json.load(open("data/temporary_dataset_files/" + temp_folder_prefix + "completed_split_sent_ids.json", 'r'))
     # print(len(sent_indexed_dataset))
     # print(json.dumps(sent_indexed_dataset[:2], indent=4))
-    sentence_splitter = SentenceSplitter(dummy=False)
+    sentence_splitter = SentenceSplitter(dummy=True)
     simple_sent_dataset = []
     for example_no, example in enumerate(sent_indexed_dataset):
         # print(json.dumps(example, indent=4))
@@ -185,13 +188,14 @@ def get_indexed_simple_sent_dataset(source_dataset, temp_folder_prefix=""):
 
 
 # source reviews are the same across all datasets (base, paraphrase, selfparaphrase)
-original_dataset = json.load(open("data/combined_data_paraphrase.json", 'r'))
+original_dataset = json.load(open("data/temporary_dataset_files/old_files/combined_data_base_paraphrase_sent_level.json", 'r'))
 
 sent_indexed_dataset = get_sent_indexed_dataset(original_dataset)
-json.dump(sent_indexed_dataset, open("data/temporary_dataset_files/paraphrase_split/sent_indexed_dataset.json", "w"))
+json.dump(sent_indexed_dataset, open("data/temporary_dataset_files/paraphrase_split_sent_level/sent_indexed_dataset.json", "w"))
 
-indexed_split_sent_dataset = get_indexed_simple_sent_dataset(sent_indexed_dataset, temp_folder_prefix="paraphrase_split/")
-json.dump(indexed_split_sent_dataset, open("data/temporary_dataset_files/paraphrase_split/indexed_split_sent_dataset.json", "w"))
+indexed_split_sent_dataset = get_indexed_simple_sent_dataset(sent_indexed_dataset, temp_folder_prefix="paraphrase_split_sent_level/")
+json.dump(indexed_split_sent_dataset, open("data/temporary_dataset_files/paraphrase_split_sent_level/indexed_split_sent_dataset.json", "w"))
 
 paragraph_split_sent_dataset = get_paragraph_simple_sent_dataset(indexed_split_sent_dataset)
-json.dump(paragraph_split_sent_dataset, open("data/combined_data_paraphrase_split.json", "w"))
+json.dump(paragraph_split_sent_dataset, open("data/temporary_dataset_files/paraphrase_split_sent_level/combined_data_paraphrase_split.json", "w"))
+
