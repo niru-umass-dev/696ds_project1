@@ -2,6 +2,7 @@
 from src.prompt import SPLIT_PROMPT, SYSTEM_PROMPT, USER_PROMPT
 import nltk
 import openai
+import string
 from typing import List
 import backoff
 
@@ -145,7 +146,7 @@ def get_indexed_simple_sent_dataset(source_dataset, temp_folder_prefix=""):
         completed_sent_ids = json.load(open("data/temporary_dataset_files/" + temp_folder_prefix + "completed_split_sent_ids.json", 'r'))
     # print(len(sent_indexed_dataset))
     # print(json.dumps(sent_indexed_dataset[:2], indent=4))
-    sentence_splitter = SentenceSplitter(dummy=True)
+    sentence_splitter = SentenceSplitter(dummy=False)
     simple_sent_dataset = []
     for example_no, example in enumerate(sent_indexed_dataset):
         # print(json.dumps(example, indent=4))
@@ -166,6 +167,12 @@ def get_indexed_simple_sent_dataset(source_dataset, temp_folder_prefix=""):
                 new_paragraph = {}
                 # print(paragraph)
                 for sent_id, sent in paragraph.items():
+                    if sent_id in completed_sent_ids:
+                        new_paragraph[sent_id] = {
+                            'sentence': sent,
+                            'simple_sents': completed_sent_ids[sent_id]
+                        }
+                        continue
                     # print(f"{sent_id} = {sent}")
                     simple_sents = sentence_splitter.split(sent)
                     simple_sents_ids = [f"{sent_id}_{idx:03d}" for idx in range(0, len(simple_sents))]
@@ -197,5 +204,4 @@ indexed_split_sent_dataset = get_indexed_simple_sent_dataset(sent_indexed_datase
 json.dump(indexed_split_sent_dataset, open("data/temporary_dataset_files/paraphrase_split_sent_level/indexed_split_sent_dataset.json", "w"))
 
 paragraph_split_sent_dataset = get_paragraph_simple_sent_dataset(indexed_split_sent_dataset)
-json.dump(paragraph_split_sent_dataset, open("data/temporary_dataset_files/paraphrase_split_sent_level/combined_data_paraphrase_split.json", "w"))
-
+json.dump(paragraph_split_sent_dataset, open("data/temporary_dataset_files/paraphrase_split_sent_level/combined_data_paraphrase_split_sent_level.json", "w"))
