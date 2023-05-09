@@ -13,20 +13,24 @@ from transformers import pipeline
 class SummNLI:
 
     def __init__(self, data_path: str = 'data/combined_data.json', data_type: str = 'base', summ_type: str = 'ref',
-                 summ_sent: bool = False):
+                 summ_sent: bool = False, factuality: bool = True):
 
         # ROBERTA-LARGE-MNLI
         self.pipe = pipeline("text-classification", model='roberta-large-mnli', return_all_scores=True, device=0)
         self.label_mapping = ['contradiction', 'neutral', 'entailment']
 
-        # CROSS-ENCODER NLI-ROBERTA-BASE
-        # self.pipe = pipeline("text-classification",model='cross-encoder/nli-roberta-base' ,return_all_scores=True, device = 0)
-        # self.label_mapping = ['contradiction', 'entailment', 'neutral']
+        
+        # ROBERTA-LARGE-SNLI-MNLI-FEVER-ANLI... 
+        # https://huggingface.co/ynie/roberta-large-snli_mnli_fever_anli_R1_R2_R3-nli
+        # self.pipe = pipeline("text-classification", model='ynie/roberta-large-snli_mnli_fever_anli_R1_R2_R3-nli', return_all_scores=True, device=0)
+        # self.label_mapping = ['entailment', 'neutral', 'contradiction']
+        
 
         self.data = json.load(open(data_path, 'r'))
         self.data_type = data_type
         self.summ_type = summ_type
         self.summ_sent = summ_sent
+        self.factuality = factuality
 
     def compute(self):
         data = self.data
@@ -241,213 +245,219 @@ class SummNLI:
 
         ##############################################################################################################
 
-        # RUN NLI FOR FACTUAL CONSISTENCY AND POPULAR OPINION
-
-        if summ_to_sent == True:
-
-            fact_labels = []
-            fact_probs = []
-            source_1 = []
-            sent_pair_2 = []
-            sent1_source = []
-            sent1_source_ent = []
-            sent2_ent = []
-            sample = []
-            sum_type = []
-
-            if self.summ_type == 'ref':
-
-                for d in range(len(data)):
-                    # source reviews
-                    source_a = data[d]['source_reviews_a']
-                    source_b = data[d]['source_reviews_b']
-
-                    # ref summaries just first reference
-                    ref_a_sum = nltk.sent_tokenize(data[d]['refs_a'][0])
-                    ref_b_sum = nltk.sent_tokenize(data[d]['refs_b'][0])
-                    ref_comm_sum = nltk.sent_tokenize(data[d]['refs_comm'][0])
-
-                    # ref aggregations
-                    ref_sent_p1, ref_sent_p2, ref_sent1_source, ref_sent1_source_ent, ref_sent2_ent, ref_count =self.source_sent_fact_helper(
-                        source_a, source_b, ref_a_sum, ref_b_sum, ref_comm_sum, 'ref')
-
-                    source_1 += ref_sent_p1
-                    sent_pair_2 += ref_sent_p2
-                    sent1_source += ref_sent1_source
-                    sent1_source_ent += ref_sent1_source_ent
-                    sent2_ent += ref_sent2_ent
-                    sum_type += ref_count
-
-                    sample += [d] * len(ref_count)
-
-                    fact_label, fact_prob = self.compute_NLI(ref_sent_p1, ref_sent_p2)
-
-                    fact_labels += fact_label
-                    fact_probs.append(fact_prob)
-
-                    print(d)
-
-            elif self.summ_type == 'gen':
-
-                for d in range(20, len(data)):
-                    # source reviews
-                    source_a = data[d]['source_reviews_a']
-                    source_b = data[d]['source_reviews_b']
-
-                    # gen summaries
-                    gen_a_sum = nltk.sent_tokenize(data[d]['gen_a'])
-                    gen_b_sum = nltk.sent_tokenize(data[d]['gen_b'])
-                    gen_comm_sum = nltk.sent_tokenize(data[d]['gen_comm'])
-
-                    # gen aggregations
-                    gen_sent_p1, gen_sent_p2, gen_sent1_source, gen_sent1_source_ent, gen_sent2_ent, gen_count = self.source_sent_fact_helper(
-                        source_a, source_b, gen_a_sum, gen_b_sum, gen_comm_sum, 'gen')
-
-                    source_1 += gen_sent_p1
-                    sent_pair_2 += gen_sent_p2
-                    sent1_source += gen_sent1_source
-                    sent1_source_ent += gen_sent1_source_ent
-                    sent2_ent += gen_sent2_ent
-                    sum_type += gen_count
-
-                    sample += [d] * len(gen_count)
-
-                    fact_label_gen, fact_prob_gen = self.compute_NLI(gen_sent_p1, gen_sent_p2)
-
-                    fact_labels += fact_label_gen
-                    fact_probs.append(fact_prob_gen)
-
-                    print(d - 20)
-
-            cont = [j for i in fact_probs for j in np.array(i)[:, label_mapping.index("contradiction")]]
-            neut = [j for i in fact_probs for j in np.array(i)[:, label_mapping.index("neutral")]]
-            ent = [j for i in fact_probs for j in np.array(i)[:, label_mapping.index("entailment")]]
-
-            fact_pop_df = pd.DataFrame({'Source1': source_1,
-                                        'Sentence2': sent_pair_2,
-                                        'Sample': sample,
-                                        'Source1_source': sent1_source,
-                                        'Sent1_source_entity': sent1_source_ent,
-                                        'Sent2_entity': sent2_ent,
-                                        '1_2_neut': neut,
-                                        '1_2_cont': cont,
-                                        '1_2_ent': ent,
-                                        '1_2_Label': fact_labels,
-                                        'Type': sum_type
-                                        })
-
+        
+        if self.factuality == False:
+            return
+        
         else:
+        
+            # RUN NLI FOR FACTUAL CONSISTENCY AND POPULAR OPINION
 
-            fact_labels = []
-            fact_probs = []
-            fact_labels_rev = []
-            fact_probs_rev = []
-            sent_pair_1 = []
-            sent_pair_2 = []
-            sent1_source = []
-            sent1_source_ent = []
-            sent2_ent = []
-            sample = []
-            sum_type = []
+            if summ_to_sent == True:
 
-            if self.summ_type == 'ref':
+                fact_labels = []
+                fact_probs = []
+                source_1 = []
+                sent_pair_2 = []
+                sent1_source = []
+                sent1_source_ent = []
+                sent2_ent = []
+                sample = []
+                sum_type = []
 
-                for d in range(len(data)):
-                    # source reviews
-                    source_a = [nltk.sent_tokenize(i) for i in data[d]['source_reviews_a']]
-                    source_b = [nltk.sent_tokenize(i) for i in data[d]['source_reviews_b']]
+                if self.summ_type == 'ref':
 
-                    # ref summaries just first reference
-                    ref_a_sum = nltk.sent_tokenize(data[d]['refs_a'][0])
-                    ref_b_sum = nltk.sent_tokenize(data[d]['refs_b'][0])
-                    ref_comm_sum = nltk.sent_tokenize(data[d]['refs_comm'][0])
+                    for d in range(len(data)):
+                        # source reviews
+                        source_a = data[d]['source_reviews_a']
+                        source_b = data[d]['source_reviews_b']
 
-                    # ref aggregations
-                    ref_sent_p1, ref_sent_p2, ref_sent1_source, ref_sent1_source_ent, ref_sent2_ent, ref_count = self.fact_helper(
-                        source_a, source_b, ref_a_sum, ref_b_sum, ref_comm_sum, 'ref')
+                        # ref summaries just first reference
+                        ref_a_sum = nltk.sent_tokenize(data[d]['refs_a'][0])
+                        ref_b_sum = nltk.sent_tokenize(data[d]['refs_b'][0])
+                        ref_comm_sum = nltk.sent_tokenize(data[d]['refs_comm'][0])
 
-                    sent_pair_1 += ref_sent_p1
-                    sent_pair_2 += ref_sent_p2
-                    sent1_source += ref_sent1_source
-                    sent1_source_ent += ref_sent1_source_ent
-                    sent2_ent += ref_sent2_ent
-                    sum_type += ref_count
+                        # ref aggregations
+                        ref_sent_p1, ref_sent_p2, ref_sent1_source, ref_sent1_source_ent, ref_sent2_ent, ref_count =self.source_sent_fact_helper(
+                            source_a, source_b, ref_a_sum, ref_b_sum, ref_comm_sum, 'ref')
 
-                    sample += [d] * len(ref_count)
+                        source_1 += ref_sent_p1
+                        sent_pair_2 += ref_sent_p2
+                        sent1_source += ref_sent1_source
+                        sent1_source_ent += ref_sent1_source_ent
+                        sent2_ent += ref_sent2_ent
+                        sum_type += ref_count
 
-                    fact_label, fact_prob = self.compute_NLI(ref_sent_p1, ref_sent_p2)
+                        sample += [d] * len(ref_count)
 
-                    fact_labels += fact_label
-                    fact_probs.append(fact_prob)
+                        fact_label, fact_prob = self.compute_NLI(ref_sent_p1, ref_sent_p2)
 
-                    fact_label_rev, fact_prob_rev = self.compute_NLI(ref_sent_p1, ref_sent_p2, rev=True)
+                        fact_labels += fact_label
+                        fact_probs.append(fact_prob)
 
-                    fact_labels_rev += fact_label_rev
-                    fact_probs_rev.append(fact_prob_rev)
+                        print(d)
 
-                    print(d)
+                elif self.summ_type == 'gen':
 
-            elif self.summ_type == 'gen':
+                    for d in range(20, len(data)):
+                        # source reviews
+                        source_a = data[d]['source_reviews_a']
+                        source_b = data[d]['source_reviews_b']
 
-                for d in range(20, len(data)):
-                    # source reviews
-                    source_a = [nltk.sent_tokenize(i) for i in data[d]['source_reviews_a']]
-                    source_b = [nltk.sent_tokenize(i) for i in data[d]['source_reviews_b']]
+                        # gen summaries
+                        gen_a_sum = nltk.sent_tokenize(data[d]['gen_a'])
+                        gen_b_sum = nltk.sent_tokenize(data[d]['gen_b'])
+                        gen_comm_sum = nltk.sent_tokenize(data[d]['gen_comm'])
 
-                    # gen summaries
-                    gen_a_sum = nltk.sent_tokenize(data[d]['gen_a'])
-                    gen_b_sum = nltk.sent_tokenize(data[d]['gen_b'])
-                    gen_comm_sum = nltk.sent_tokenize(data[d]['gen_comm'])
+                        # gen aggregations
+                        gen_sent_p1, gen_sent_p2, gen_sent1_source, gen_sent1_source_ent, gen_sent2_ent, gen_count = self.source_sent_fact_helper(
+                            source_a, source_b, gen_a_sum, gen_b_sum, gen_comm_sum, 'gen')
 
-                    # gen aggregations
-                    gen_sent_p1, gen_sent_p2, gen_sent1_source, gen_sent1_source_ent, gen_sent2_ent, gen_count = self.fact_helper(
-                        source_a, source_b, gen_a_sum, gen_b_sum, gen_comm_sum, 'gen')
+                        source_1 += gen_sent_p1
+                        sent_pair_2 += gen_sent_p2
+                        sent1_source += gen_sent1_source
+                        sent1_source_ent += gen_sent1_source_ent
+                        sent2_ent += gen_sent2_ent
+                        sum_type += gen_count
 
-                    sent_pair_1 += gen_sent_p1
-                    sent_pair_2 += gen_sent_p2
-                    sent1_source += gen_sent1_source
-                    sent1_source_ent += gen_sent1_source_ent
-                    sent2_ent += gen_sent2_ent
-                    sum_type += gen_count
+                        sample += [d] * len(gen_count)
 
-                    sample += [d] * len(gen_count)
+                        fact_label_gen, fact_prob_gen = self.compute_NLI(gen_sent_p1, gen_sent_p2)
 
-                    fact_label_gen, fact_prob_gen = self.compute_NLI(gen_sent_p1, gen_sent_p2)
+                        fact_labels += fact_label_gen
+                        fact_probs.append(fact_prob_gen)
 
-                    fact_labels += fact_label_gen
-                    fact_probs.append(fact_prob_gen)
+                        print(d - 20)
 
-                    fact_label_rev, fact_prob_rev = self.compute_NLI(gen_sent_p1, gen_sent_p2, rev=True)
+                cont = [j for i in fact_probs for j in np.array(i)[:, label_mapping.index("contradiction")]]
+                neut = [j for i in fact_probs for j in np.array(i)[:, label_mapping.index("neutral")]]
+                ent = [j for i in fact_probs for j in np.array(i)[:, label_mapping.index("entailment")]]
 
-                    fact_labels_rev += fact_label_rev
-                    fact_probs_rev.append(fact_prob_rev)
+                fact_pop_df = pd.DataFrame({'Source1': source_1,
+                                            'Sentence2': sent_pair_2,
+                                            'Sample': sample,
+                                            'Source1_source': sent1_source,
+                                            'Sent1_source_entity': sent1_source_ent,
+                                            'Sent2_entity': sent2_ent,
+                                            '1_2_neut': neut,
+                                            '1_2_cont': cont,
+                                            '1_2_ent': ent,
+                                            '1_2_Label': fact_labels,
+                                            'Type': sum_type
+                                            })
 
-                    print(d - 20)
+            else:
 
-            cont = [j for i in fact_probs for j in np.array(i)[:, label_mapping.index("contradiction")]]
-            neut = [j for i in fact_probs for j in np.array(i)[:, label_mapping.index("neutral")]]
-            ent = [j for i in fact_probs for j in np.array(i)[:, label_mapping.index("entailment")]]
+                fact_labels = []
+                fact_probs = []
+                fact_labels_rev = []
+                fact_probs_rev = []
+                sent_pair_1 = []
+                sent_pair_2 = []
+                sent1_source = []
+                sent1_source_ent = []
+                sent2_ent = []
+                sample = []
+                sum_type = []
 
-            cont_rev = [j for i in fact_probs_rev for j in np.array(i)[:, label_mapping.index("contradiction")]]
-            neut_rev = [j for i in fact_probs_rev for j in np.array(i)[:, label_mapping.index("neutral")]]
-            ent_rev = [j for i in fact_probs_rev for j in np.array(i)[:, label_mapping.index("entailment")]]
+                if self.summ_type == 'ref':
 
-            fact_pop_df = pd.DataFrame({'Sentence1': sent_pair_1,
-                                        'Sentence2': sent_pair_2,
-                                        'Sample': sample,
-                                        'Sent1_source': sent1_source,
-                                        'Sent1_source_entity': sent1_source_ent,
-                                        'Sent2_entity': sent2_ent,
-                                        '1_2_neut': neut,
-                                        '1_2_cont': cont,
-                                        '1_2_ent': ent,
-                                        '1_2_Label': fact_labels,
-                                        '2_1_neut': neut_rev,
-                                        '2_1_cont': cont_rev,
-                                        '2_1_ent': ent_rev,
-                                        '2_1_Label': fact_labels_rev,
-                                        'Type': sum_type
-                                        })
+                    for d in range(len(data)):
+                        # source reviews
+                        source_a = [nltk.sent_tokenize(i) for i in data[d]['source_reviews_a']]
+                        source_b = [nltk.sent_tokenize(i) for i in data[d]['source_reviews_b']]
+
+                        # ref summaries just first reference
+                        ref_a_sum = nltk.sent_tokenize(data[d]['refs_a'][0])
+                        ref_b_sum = nltk.sent_tokenize(data[d]['refs_b'][0])
+                        ref_comm_sum = nltk.sent_tokenize(data[d]['refs_comm'][0])
+
+                        # ref aggregations
+                        ref_sent_p1, ref_sent_p2, ref_sent1_source, ref_sent1_source_ent, ref_sent2_ent, ref_count = self.fact_helper(
+                            source_a, source_b, ref_a_sum, ref_b_sum, ref_comm_sum, 'ref')
+
+                        sent_pair_1 += ref_sent_p1
+                        sent_pair_2 += ref_sent_p2
+                        sent1_source += ref_sent1_source
+                        sent1_source_ent += ref_sent1_source_ent
+                        sent2_ent += ref_sent2_ent
+                        sum_type += ref_count
+
+                        sample += [d] * len(ref_count)
+
+                        fact_label, fact_prob = self.compute_NLI(ref_sent_p1, ref_sent_p2)
+
+                        fact_labels += fact_label
+                        fact_probs.append(fact_prob)
+
+                        fact_label_rev, fact_prob_rev = self.compute_NLI(ref_sent_p1, ref_sent_p2, rev=True)
+
+                        fact_labels_rev += fact_label_rev
+                        fact_probs_rev.append(fact_prob_rev)
+
+                        print(d)
+
+                elif self.summ_type == 'gen':
+
+                    for d in range(20, len(data)):
+                        # source reviews
+                        source_a = [nltk.sent_tokenize(i) for i in data[d]['source_reviews_a']]
+                        source_b = [nltk.sent_tokenize(i) for i in data[d]['source_reviews_b']]
+
+                        # gen summaries
+                        gen_a_sum = nltk.sent_tokenize(data[d]['gen_a'])
+                        gen_b_sum = nltk.sent_tokenize(data[d]['gen_b'])
+                        gen_comm_sum = nltk.sent_tokenize(data[d]['gen_comm'])
+
+                        # gen aggregations
+                        gen_sent_p1, gen_sent_p2, gen_sent1_source, gen_sent1_source_ent, gen_sent2_ent, gen_count = self.fact_helper(
+                            source_a, source_b, gen_a_sum, gen_b_sum, gen_comm_sum, 'gen')
+
+                        sent_pair_1 += gen_sent_p1
+                        sent_pair_2 += gen_sent_p2
+                        sent1_source += gen_sent1_source
+                        sent1_source_ent += gen_sent1_source_ent
+                        sent2_ent += gen_sent2_ent
+                        sum_type += gen_count
+
+                        sample += [d] * len(gen_count)
+
+                        fact_label_gen, fact_prob_gen = self.compute_NLI(gen_sent_p1, gen_sent_p2)
+
+                        fact_labels += fact_label_gen
+                        fact_probs.append(fact_prob_gen)
+
+                        fact_label_rev, fact_prob_rev = self.compute_NLI(gen_sent_p1, gen_sent_p2, rev=True)
+
+                        fact_labels_rev += fact_label_rev
+                        fact_probs_rev.append(fact_prob_rev)
+
+                        print(d - 20)
+
+                cont = [j for i in fact_probs for j in np.array(i)[:, label_mapping.index("contradiction")]]
+                neut = [j for i in fact_probs for j in np.array(i)[:, label_mapping.index("neutral")]]
+                ent = [j for i in fact_probs for j in np.array(i)[:, label_mapping.index("entailment")]]
+
+                cont_rev = [j for i in fact_probs_rev for j in np.array(i)[:, label_mapping.index("contradiction")]]
+                neut_rev = [j for i in fact_probs_rev for j in np.array(i)[:, label_mapping.index("neutral")]]
+                ent_rev = [j for i in fact_probs_rev for j in np.array(i)[:, label_mapping.index("entailment")]]
+
+                fact_pop_df = pd.DataFrame({'Sentence1': sent_pair_1,
+                                            'Sentence2': sent_pair_2,
+                                            'Sample': sample,
+                                            'Sent1_source': sent1_source,
+                                            'Sent1_source_entity': sent1_source_ent,
+                                            'Sent2_entity': sent2_ent,
+                                            '1_2_neut': neut,
+                                            '1_2_cont': cont,
+                                            '1_2_ent': ent,
+                                            '1_2_Label': fact_labels,
+                                            '2_1_neut': neut_rev,
+                                            '2_1_cont': cont_rev,
+                                            '2_1_ent': ent_rev,
+                                            '2_1_Label': fact_labels_rev,
+                                            'Type': sum_type
+                                            })
 
         ####################################################################################################################
 
