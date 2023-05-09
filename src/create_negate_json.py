@@ -13,7 +13,7 @@ for i in range(len(original)):
     series = pd.Series(neg_list)
     neg_list = series.fillna('').tolist()
 
-    original[i]['neg_refs_a'] = " ".join(neg_list)
+    original[i]['refs_a_neg'] = " ".join(neg_list)
     
     
 with open('data/combined_data_base_split_complete_neg.json', 'w') as f:

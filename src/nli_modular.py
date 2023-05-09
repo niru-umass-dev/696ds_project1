@@ -145,7 +145,7 @@ class SummNLI:
                     for d in range(20,30):
                         # ref summaries just first reference
                         ref_a_sum = nltk.sent_tokenize(data[d]['refs_a'][0])
-                        ref_a_sum_neg = nltk.sent_tokenize(data[d]['neg_refs_a'][0])
+                        ref_a_sum_neg = nltk.sent_tokenize(data[d]['refs_a_neg'][0])
                         
 
                         # ref aggregations
