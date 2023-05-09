@@ -13,7 +13,7 @@ from transformers import pipeline
 class SummNLI:
 
     def __init__(self, data_path: str = 'data/combined_data.json', data_type: str = 'base', summ_type: str = 'ref',
-                 summ_sent: bool = False, factuality: bool = True):
+                 summ_sent: bool = False, factuality: bool = False, negation: bool = False):
 
         # ROBERTA-LARGE-MNLI
         self.pipe = pipeline("text-classification", model='roberta-large-mnli', return_all_scores=True, device=0)
@@ -25,17 +25,18 @@ class SummNLI:
         # self.pipe = pipeline("text-classification", model='ynie/roberta-large-snli_mnli_fever_anli_R1_R2_R3-nli', return_all_scores=True, device=0)
         # self.label_mapping = ['entailment', 'neutral', 'contradiction']
         
-
         self.data = json.load(open(data_path, 'r'))
         self.data_type = data_type
         self.summ_type = summ_type
         self.summ_sent = summ_sent
         self.factuality = factuality
+        self.negation = negation
 
     def compute(self):
         data = self.data
         label_mapping = self.label_mapping
         summ_to_sent = self.summ_sent
+            
 
         # RUN NLI FOR CONTRAST
 
@@ -138,38 +139,73 @@ class SummNLI:
             sum_type = []
 
             if self.summ_type == 'ref':
+                
+                
+                if self.negation == True:
+                    for d in range(20,30):
+                        # ref summaries just first reference
+                        ref_a_sum = nltk.sent_tokenize(data[d]['refs_a'][0])
+                        ref_a_sum_neg = nltk.sent_tokenize(data[d]['neg_refs_a'][0])
+                        
 
-                for d in range(len(data)):
-                    # ref summaries just first reference
-                    ref_a_sum = nltk.sent_tokenize(data[d]['refs_a'][0])
-                    ref_b_sum = nltk.sent_tokenize(data[d]['refs_b'][0])
-                    ref_comm_sum = nltk.sent_tokenize(data[d]['refs_comm'][0])
+                        # ref aggregations
+                        ref_sent_p1, ref_sent_p2, ref_sent1_ent, ref_sent2_ent, ref_count = self.cont_helper(ref_a_sum,
+                                                                                                             ref_a_sum_neg,
+                                                                                                             None,
+                                                                                                             'ref')
 
-                    # ref aggregations
-                    ref_sent_p1, ref_sent_p2, ref_sent1_ent, ref_sent2_ent, ref_count = self.cont_helper(ref_a_sum,
-                                                                                                         ref_b_sum,
-                                                                                                         ref_comm_sum,
-                                                                                                         'ref')
+                        sent_pair_1 += ref_sent_p1
+                        sent_pair_2 += ref_sent_p2
+                        sent1_ent += ref_sent1_ent
+                        sent2_ent += ref_sent2_ent
+                        sum_type += ref_count
 
-                    sent_pair_1 += ref_sent_p1
-                    sent_pair_2 += ref_sent_p2
-                    sent1_ent += ref_sent1_ent
-                    sent2_ent += ref_sent2_ent
-                    sum_type += ref_count
+                        sample += [d] * len(ref_count)
 
-                    sample += [d] * len(ref_count)
+                        cont_label, cont_prob = self.compute_NLI(ref_sent_p1, ref_sent_p2)
 
-                    cont_label, cont_prob = self.compute_NLI(ref_sent_p1, ref_sent_p2)
+                        cont_label_rev, cont_prob_rev = self.compute_NLI(ref_sent_p1, ref_sent_p2, rev=True)
 
-                    cont_label_rev, cont_prob_rev = self.compute_NLI(ref_sent_p1, ref_sent_p2, rev=True)
+                        cont_labels += cont_label
+                        cont_probs.append(cont_prob)
 
-                    cont_labels += cont_label
-                    cont_probs.append(cont_prob)
+                        cont_labels_rev += cont_label_rev
+                        cont_probs_rev.append(cont_prob_rev)
 
-                    cont_labels_rev += cont_label_rev
-                    cont_probs_rev.append(cont_prob_rev)
+                        print(d-20)
+                    
+                else:
+                    for d in range(len(data)):
+                        # ref summaries just first reference
+                        ref_a_sum = nltk.sent_tokenize(data[d]['refs_a'][0])
+                        ref_b_sum = nltk.sent_tokenize(data[d]['refs_b'][0])
+                        ref_comm_sum = nltk.sent_tokenize(data[d]['refs_comm'][0])
 
-                    print(d)
+                        # ref aggregations
+                        ref_sent_p1, ref_sent_p2, ref_sent1_ent, ref_sent2_ent, ref_count = self.cont_helper(ref_a_sum,
+                                                                                                             ref_b_sum,
+                                                                                                             ref_comm_sum,
+                                                                                                             'ref')
+
+                        sent_pair_1 += ref_sent_p1
+                        sent_pair_2 += ref_sent_p2
+                        sent1_ent += ref_sent1_ent
+                        sent2_ent += ref_sent2_ent
+                        sum_type += ref_count
+
+                        sample += [d] * len(ref_count)
+
+                        cont_label, cont_prob = self.compute_NLI(ref_sent_p1, ref_sent_p2)
+
+                        cont_label_rev, cont_prob_rev = self.compute_NLI(ref_sent_p1, ref_sent_p2, rev=True)
+
+                        cont_labels += cont_label
+                        cont_probs.append(cont_prob)
+
+                        cont_labels_rev += cont_label_rev
+                        cont_probs_rev.append(cont_prob_rev)
+
+                        print(d)
 
             elif self.summ_type == 'gen':
 
@@ -230,14 +266,22 @@ class SummNLI:
                  })
 
         # SAVE CSV FILE
-
-        if self.summ_sent == True:
-            cont_df.to_csv(f'data/results/sentpairs_nli_contrast_{self.summ_type}_{self.data_type}.csv',
+        
+        if self.negation == True:
+            if self.summ_sent == True:
+            cont_df.to_csv(f'data/results/sumsent_nli_contrast_{self.summ_type}_{self.data_type}_neg.csv',
                            index=None, header=True)
-
-        else:
-            cont_df.to_csv(f'data/results/sentpairs_nli_contrast_{self.summ_type}_{self.data_type}.csv', index=None,
+            else:
+            cont_df.to_csv(f'data/results/sentpairs_nli_contrast_{self.summ_type}_{self.data_type}_neg.csv', index=None,
                            header=True)
+            
+        else:
+            if self.summ_sent == True:
+                cont_df.to_csv(f'data/results/sumsent_nli_contrast_{self.summ_type}_{self.data_type}.csv',
+                               index=None, header=True)
+            else:
+                cont_df.to_csv(f'data/results/sentpairs_nli_contrast_{self.summ_type}_{self.data_type}.csv', index=None,
+                               header=True)
 
             # IF THE DATA_TYPE IS PARAPHRASES, SKIP FACTUALITY SINCE WE DON'T HAVE SOURCE DATA PARAPHRASES
         if self.data_type == 'paraphrase' or self.data_type == 'selfparaphrase':
@@ -465,9 +509,9 @@ class SummNLI:
 
         if self.summ_sent == True:
 
-            fact_pop_df.to_csv(f'data/results/sentpairs_nli_factuality_{self.summ_type}_{self.data_type}.csv',
+            fact_pop_df.to_csv(f'data/results/sumsent_nli_factuality_{self.summ_type}_{self.data_type}.csv',
                                index=None, header=True)
-            fact_pop_df.to_csv(f'data/results/sentpairs_nli_popular_{self.summ_type}_{self.data_type}.csv',
+            fact_pop_df.to_csv(f'data/results/sumsent_nli_popular_{self.summ_type}_{self.data_type}.csv',
                                index=None, header=True)
 
         else:
@@ -523,7 +567,7 @@ class SummNLI:
         return labels, prob
 
     # HELPER METHOD FOR MAIN FUNCTION HELPFUL CONTRAST
-    def cont_helper(self, a_sum, b_sum, comm_sum, sum_type):
+    def cont_helper(self, a_sum, b_sum, comm_sum = None, sum_type):
 
         sum_types = []
         sent_p1 = []
@@ -539,6 +583,11 @@ class SummNLI:
                 sent1_ent.append('a')
                 sent2_ent.append('b')
                 count += 1
+                
+        # if only give 2 summaires
+        if comm_sum == None:
+            sum_types += [sum_type] * count
+            return sent_p1, sent_p2, sent1_ent, sent2_ent, sum_types
 
         for i in a_sum:
             for j in comm_sum:
@@ -559,6 +608,7 @@ class SummNLI:
         sum_types += [sum_type] * count
 
         return sent_p1, sent_p2, sent1_ent, sent2_ent, sum_types
+    
 
     # HELPER METHOD FOR HELPFUL CONTRAST IF SUMMARY SENTENCE PAIR
     def summ_sent_cont_helper(self, whole_a, whole_b, whole_comm, a_sum, b_sum, comm_sum, sum_type):
