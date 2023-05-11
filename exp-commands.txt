@@ -5,3 +5,11 @@ python3 src/experiments.py -r paraphrase-binreal-01 -n "Now trying with binary t
 python3 src/experiments.py -r paraphrase-binall-02 -n "Now scoring each sentence as cont if it's contradicted by atleast one statement, neutral if neutral to all, and ent otherwise. Individual comparison labels are scored in favour of CONTRADICTION/ENTAILMENT if clashing with NEUTRAL in other direction"
 python3 src/experiments.py -r nli-summ-sentpairs-01 -n "Generating (summ, ent) sent_nli pairs now"
 python3 src/experiments.py -r paraphrase-binall-summsent-01 -n "Now scoring each sentence by comparing it with the other two summaries in the (summ -> sent) direction."
+python3 src/experiments.py -r paraphrase-binall-splitsent-01 -n "Now splitting each complex sent into simple sents before computing NLI metric."
+python3 src/experiments.py -r paraphrase-binall-splitsent-02-no-fact -n "Now splitting each complex sent into simple sents before computing NLI metric, wihtout evaluating factuality"
+
+
+
+rm -rf data/results/sentpairs_nli_*
+rm -rf data/results/nli_contrast_*
+rm -rf data/results/nli_factuality_*

@@ -46,10 +46,10 @@ args = parser.parse_args()
 
 
 ## Hyperparameters
-summ_orig = ["ref", "gen"]
+summ_orig = ['ref'] # ["ref", "gen"]
 metrics = ['ds', 'bs', 'nli']
 nli_components = ["contrast", "factuality"]
-datasets = ['base', 'paraphrase', 'selfparaphrase']
+datasets = ['base', 'paraphrase']# ['base', 'paraphrase', 'selfparaphrase']
 experiments = {
     "paraphrase": {
         "paraphrase_model": "text-davinci-003",
@@ -57,13 +57,8 @@ experiments = {
         "is_dummy":False, # dummy run to test paraphrasing code without actually consuming openai API
         "summ_set": "all" # cont/all running on only cont summaries or all
     },
-    "selfparaphrase": {
-        "paraphrase_model": "text-davinci-003",
-        "length_control": "+5%",
-        "is_dummy":False,
-        "summ_set": "all"
-    }
 }
+
 # start a new wandb run to track this script
 run = wandb.init(
     # set the wandb project where this run will be logged
@@ -72,9 +67,9 @@ run = wandb.init(
     # track hyperparameters and run metadata
     config={
         "summ_orig": summ_orig, # Are we analyzing reference or generated summaries or both
-        "summ_models": ["cococsum"], # if generated, then the model which generates the summaries
+        "summ_models": ["cocosum"], # if generated, then the model which generates the summaries
         "metrics": metrics, # metrics we are computing
-        "nli_models": ["robert-large-mnli"], # model used for nli
+        "nli_models": ["roberta-large-mnli"], # model used for nli
         "nli_components": nli_components, # which nli desiderata
         "experiments": experiments,
         "timestamp": datetime_string,
@@ -101,43 +96,42 @@ if 'paraphrase' in experiments and not os.path.isfile("data/combined_data_paraph
     )
     json.dump(paraphrase_dataset, open("data/combined_data_paraphrase.json", 'w'))
 
-if 'selfparaphrase' in experiments and not os.path.isfile("data/combined_data_selfparaphrase.json"):
-    tokenizer = GPT2TokenizerFast.from_pretrained('gpt2')
-    paraphrase_dataset = get_selfpara_dataset(
-        orig_dataset_path='data/combined_data_base.json',
-        src_summ = 'a',
-        control_length=True,
-        n=5,
-        dummy=False,
-        tokenizer=tokenizer,
-        sleep = 0 # If you're using a rate-limited API, change this to a non-zero value to space your calls
-    )
-    json.dump(paraphrase_dataset, open("data/combined_data_selfparaphrase.json", 'w'))
+# We don't need self-paraphrasing anymore
+#
+# if 'selfparaphrase' in experiments and not os.path.isfile("data/combined_data_selfparaphrase.json"):
+#     tokenizer = GPT2TokenizerFast.from_pretrained('gpt2')
+#     paraphrase_dataset = get_selfpara_dataset(
+#         orig_dataset_path='data/combined_data_base.json',
+#         src_summ = 'a',
+#         control_length=True,
+#         n=5,
+#         dummy=False,
+#         tokenizer=tokenizer,
+#         sleep = 0 # If you're using a rate-limited API, change this to a non-zero value to space your calls
+#     )
+#     json.dump(paraphrase_dataset, open("data/combined_data_selfparaphrase.json", 'w'))
 
 # Generate Sentence-Pair Level NLI Scores if the files don't exist
-
-
 for dataset in datasets:
     for summ_type in summ_orig:
-        data_path = f"data/combined_data_{dataset}_split.json"
+        data_path = f"data/combined_data_{dataset}_split_complete.json"
         
         file_path = f"data/results/sentpairs_nli_contrast_{summ_type}_{dataset}.csv"
         if not os.path.isfile(file_path):
             print(f"Not Found:{file_path}")
-            # nli_metric = SummNLI(data_path=data_path, data_type=dataset, summ_type=summ_type)
-            nli_metric = SummNLI(data_path=data_path, data_type=dataset, summ_type=summ_type, summ_sent=True)
+            nli_metric = SummNLI(data_path=data_path, data_type=dataset, summ_type=summ_type, summ_sent=False)
+            # nli_metric = SummNLI(data_path=data_path, data_type=dataset, summ_type=summ_type, summ_sent=True)
             nli_metric.compute()
         
-        file_path = f"data/results/sentpairs_nli_factuality_{summ_type}_{dataset}.csv"
-        if dataset == 'base' and not os.path.isfile(file_path):
-            print(f"Not Found:{file_path}")
-            # nli_metric = SummNLI(data_path=data_path, data_type=dataset, summ_type=summ_type)
-            nli_metric = SummNLI(data_path=data_path, data_type=dataset, summ_type=summ_type, summ_sent=True)
-            nli_metric.compute()
+        # file_path = f"data/results/sentpairs_nli_factuality_{summ_type}_{dataset}.csv"
+        # if dataset == 'base' and not os.path.isfile(file_path):
+        #     print(f"Not Found:{file_path}")
+        #     nli_metric = SummNLI(data_path=data_path, data_type=dataset, summ_type=summ_type, summ_sent=False)
+        #     # nli_metric = SummNLI(data_path=data_path, data_type=dataset, summ_type=summ_type, summ_sent=True)
+        #     nli_metric.compute()
 
             
 ## Create entity-pair level DS, BS, and NLI Scores for base, paraphrase, and selfparaphrase datasets
-
 
 exp_metrics = copy.deepcopy(metrics)
 exp_metrics.remove('nli')
@@ -184,16 +178,16 @@ for summ_type in summ_orig:
                         df.to_csv(results_path, index=False)
                         wandb.save(results_path)
                 
-                nli_component ='factuality'
-                if dataset != 'base':
-                    continue
-                results_path = f"data/results/{metric}_{nli_component}_{summ_type}_{dataset}.csv"
-                if not os.path.isfile(results_path):
-                    print(f"Not Found:{results_path}")
-                    records = get_nli_scores(data_type=dataset, component=nli_component,summ_type=summ_type, alphas=None, run=run)
-                    df = pd.DataFrame.from_records(records, columns = ['summ_type','split','example_id', 'summ_a', 'summ_b', 'summ_comm', f'{metric}_{nli_component}_score'])
-                    df.to_csv(results_path, index=False)
-                    wandb.save(results_path)
+                # nli_component ='factuality'
+                # if dataset != 'base':
+                #     continue
+                # results_path = f"data/results/{metric}_{nli_component}_{summ_type}_{dataset}.csv"
+                # if not os.path.isfile(results_path):
+                #     print(f"Not Found:{results_path}")
+                #     records = get_nli_scores(data_type=dataset, component=nli_component,summ_type=summ_type, alphas=None, run=run)
+                #     df = pd.DataFrame.from_records(records, columns = ['summ_type','split','example_id', 'summ_a', 'summ_b', 'summ_comm', f'{metric}_{nli_component}_score'])
+                #     df.to_csv(results_path, index=False)
+                #     wandb.save(results_path)
 
                     
 # EXPERIMENT 1: RESULTS
@@ -245,24 +239,24 @@ for summ_type in summ_orig:
                     metric_header_name = f"{metric}_{nli_component}_{label}"
                     headers.extend([f"mean({metric_header_name})", f"std_dev({metric_header_name})", f"corr({metric_header_name})", f"rank_corr({metric_header_name})"])
                 
-                nli_component = 'factuality'
-                col_name = f"{metric}_{nli_component}_score"
+#                 nli_component = 'factuality'
+#                 col_name = f"{metric}_{nli_component}_score"
                 
-                # Get base scores
-                base_file_path = f"data/results/{metric}_{nli_component}_{summ_type}_base.csv"
-                base_scores = pd.read_csv(base_file_path)[col_name].to_list()
-                if dataset != 'base':
-                    scores = [0] * len(base_scores)
-                else:
-                    file_path = f"data/results/{metric}_{nli_component}_{summ_type}_{dataset}.csv"
-                    scores = pd.read_csv(file_path)[col_name].to_list()
+#                 # Get base scores
+#                 base_file_path = f"data/results/{metric}_{nli_component}_{summ_type}_base.csv"
+#                 base_scores = pd.read_csv(base_file_path)[col_name].to_list()
+#                 if dataset != 'base':
+#                     scores = [0] * len(base_scores)
+#                 else:
+#                     file_path = f"data/results/{metric}_{nli_component}_{summ_type}_{dataset}.csv"
+#                     scores = pd.read_csv(file_path)[col_name].to_list()
                 
-                mean, std_dev, corr, rank_corr, plt = get_centtend_measures(base_scores, scores)
-                plt.savefig(os.path.join(experiment_summ_folder, f"{summ_type}_{metric}_{nli_component}_{dataset}.png"))
+#                 mean, std_dev, corr, rank_corr, plt = get_centtend_measures(base_scores, scores)
+#                 plt.savefig(os.path.join(experiment_summ_folder, f"{summ_type}_{metric}_{nli_component}_{dataset}.png"))
                 
-                record.extend([mean, std_dev, corr, rank_corr])
-                metric_header_name = f"{metric}_{nli_component}"
-                headers.extend([f"mean({metric_header_name})", f"std_dev({metric_header_name})", f"corr({metric_header_name})", f"rank_corr({metric_header_name})"])
+#                 record.extend([mean, std_dev, corr, rank_corr])
+#                 metric_header_name = f"{metric}_{nli_component}"
+#                 headers.extend([f"mean({metric_header_name})", f"std_dev({metric_header_name})", f"corr({metric_header_name})", f"rank_corr({metric_header_name})"])
     
         records.append(record)
     experiment_summ_path = os.path.join(experiment_summ_folder,f"{summ_type}_experiment_paraphrase_summary.csv")
