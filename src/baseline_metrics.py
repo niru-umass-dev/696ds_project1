@@ -33,6 +33,12 @@ def calc_ds(summ_a, summ_b, summ_comm, evaluator):
     dr = sum((s_a | s_b | s_c).values())
     return 1.0 - (nr / dr)
 
+def calc_ds_pair(summ_a, summ_b, evaluator):
+    s_a, s_b = stem(summ_a, evaluator), stem(summ_b, evaluator)
+    nr = sum((s_a & s_b).values())
+    dr = sum((s_a | s_b).values())
+    return 1.0 - (nr / dr)
+
 def calc_bs_pair(seq_a, seq_b, scorer):
     ab = [s.detach().numpy()[0] for s in scorer.score([seq_a], [seq_b])]
     # ba = [s.detach().numpy()[0] for s in scorer.score([seq_a], [seq_b])]
@@ -79,7 +85,7 @@ def compare_orig_para(x, y, orig_type, score_type='DS'):
   print(f"Correlation = {r[0,1]:.2f}")
   print(f"µ({orig_type}-para) = {np.mean(diffs):.1f} | σ({orig_type}-para) = {np.std(diffs):.1f}", '\n')
 
-def get_ds_scores(combined_data: List[Dict], summ_type, evaluator):
+def get_ds_scores(combined_data: List[Dict], summ_type, evaluator, compute, negation = False):
     records = []
     for example_id, example in enumerate(combined_data):
         split = example['split']
@@ -90,13 +96,21 @@ def get_ds_scores(combined_data: List[Dict], summ_type, evaluator):
             cont_a, cont_b, cont_comm = example['gen_a'], example['gen_b'], example['gen_comm']
         if summ_type == 'ref':
             cont_a, cont_b, cont_comm = example['refs_a'][0], example['refs_b'][0], example['refs_comm'][0]
-
-        example_ds_score = calc_ds(cont_a, cont_b, cont_comm, evaluator)
-
-        records.append((summ_type, split, example_id, cont_a, cont_b, cont_comm, example_ds_score))
+        if negation == True:
+            cont_a, cont_b = example['refs_a'][0], example['refs_a_neg']
+            
+            
+        if compute == "pair":
+            example_ds_score = calc_ds(cont_a, cont_b, evaluator)
+            records.append((summ_type, split, example_id, cont_a, cont_b, example_ds_score))
+        
+        else:
+            example_ds_score = calc_ds(cont_a, cont_b, cont_comm, evaluator)
+            records.append((summ_type, split, example_id, cont_a, cont_b, cont_comm, example_ds_score))
+        # records.append((summ_type, split, example_id, cont_a, cont_b, cont_comm, example_ds_score))
     return records
 
-def get_bs_scores(combined_data: List[Dict], summ_type, scorer):
+def get_bs_scores(combined_data: List[Dict], summ_type, scorer, compute, negation = False):
     records = []
     for example_id, example in enumerate(combined_data):
         split = example['split']
@@ -107,10 +121,16 @@ def get_bs_scores(combined_data: List[Dict], summ_type, scorer):
             cont_a, cont_b, cont_comm = example['gen_a'], example['gen_b'], example['gen_comm']
         if summ_type == 'ref':
             cont_a, cont_b, cont_comm = example['refs_a'][0], example['refs_b'][0], example['refs_comm'][0]
+        if negation == True:
+            cont_a, cont_b = example['refs_a'][0], example['refs_a_neg']
 
-        example_bs_score = calc_bs_triplet(cont_a, cont_b, cont_comm, scorer)
-
-        records.append((summ_type, split, example_id, cont_a, cont_b, cont_comm, example_bs_score[2]))
+        if compute == "pair":
+            example_bs_score = calc_bs_pair(cont_a, cont_b, scorer)
+            records.append((summ_type, split, example_id, cont_a, cont_b, example_bs_score[2]))
+        else:
+            example_bs_score = calc_bs_triplet(cont_a, cont_b, cont_comm, scorer)
+            records.append((summ_type, split, example_id, cont_a, cont_b, cont_comm, example_bs_score[2]))
+        # records.append((summ_type, split, example_id, cont_a, cont_b, cont_comm, example_bs_score[2]))
     return records
 
 

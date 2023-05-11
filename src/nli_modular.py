@@ -142,10 +142,10 @@ class SummNLI:
                 
                 
                 if self.negation == True:
-                    for d in range(20,30):
+                    for d in range(len(data)):
                         # ref summaries just first reference
                         ref_a_sum = nltk.sent_tokenize(data[d]['refs_a'][0])
-                        ref_a_sum_neg = nltk.sent_tokenize(data[d]['refs_a_neg'][0])
+                        ref_a_sum_neg = nltk.sent_tokenize(data[d]['refs_a_neg'])
                         
 
                         # ref aggregations
@@ -172,7 +172,7 @@ class SummNLI:
                         cont_labels_rev += cont_label_rev
                         cont_probs_rev.append(cont_prob_rev)
 
-                        print(d-20)
+                        print(d)
                     
                 else:
                     for d in range(len(data)):
@@ -523,7 +523,7 @@ class SummNLI:
 
             ####################################################################################################################
 
-        # NLI to get labels and scores
+    # NLI to get labels and scores
 
     def compute_NLI(self, sent1, sent2, rev=False):
 
@@ -673,16 +673,15 @@ class SummNLI:
 
         return p1, sent_p2, summ1_ent, sent2_ent, sum_types
 
-        # HELPER METHOD FOR MAIN FUNCTION POPULAR OPINION FACTUAL CONSISTENCY
-        def fact_helper(self, source_a, source_b, a_sum, b_sum, comm_sum, sum_type):
-            sum_types = []
+    # HELPER METHOD FOR MAIN FUNCTION POPULAR OPINION FACTUAL CONSISTENCY
+    def fact_helper(self, source_a, source_b, a_sum, b_sum, comm_sum, sum_type):
+        sum_types = []
 
         sent_p1 = []
         sent_p2 = []
         sent1_source = []
         sent1_source_ent = []
         sent2_ent = []
-
         count = 0
         for i in range(len(source_a)):
             for j in source_a[i]:
