@@ -16,15 +16,14 @@ class SummNLI:
                  summ_sent: bool = False, factuality: bool = False, negation: bool = False):
 
         # ROBERTA-LARGE-MNLI
-        self.pipe = pipeline("text-classification", model='roberta-large-mnli', return_all_scores=True, device=0)
-        self.label_mapping = ['contradiction', 'neutral', 'entailment']
+        # self.pipe = pipeline("text-classification", model='roberta-large-mnli', return_all_scores=True, device=0)
+        # self.label_mapping = ['contradiction', 'neutral', 'entailment']
 
-        
-        # ROBERTA-LARGE-SNLI-MNLI-FEVER-ANLI... 
+        # ROBERTA-LARGE-SNLI-MNLI-FEVER-ANLI...
         # https://huggingface.co/ynie/roberta-large-snli_mnli_fever_anli_R1_R2_R3-nli
-        # self.pipe = pipeline("text-classification", model='ynie/roberta-large-snli_mnli_fever_anli_R1_R2_R3-nli', return_all_scores=True, device=0)
-        # self.label_mapping = ['entailment', 'neutral', 'contradiction']
-        
+        self.pipe = pipeline("text-classification", model='ynie/roberta-large-snli_mnli_fever_anli_R1_R2_R3-nli', return_all_scores=True, device=0)
+        self.label_mapping = ['entailment', 'neutral', 'contradiction']
+
         self.data = json.load(open(data_path, 'r'))
         self.data_type = data_type
         self.summ_type = summ_type
@@ -36,7 +35,6 @@ class SummNLI:
         data = self.data
         label_mapping = self.label_mapping
         summ_to_sent = self.summ_sent
-            
 
         # RUN NLI FOR CONTRAST
 
@@ -139,19 +137,16 @@ class SummNLI:
             sum_type = []
 
             if self.summ_type == 'ref':
-                
-                
+
                 if self.negation == True:
                     for d in range(len(data)):
                         # ref summaries just first reference
                         ref_a_sum = nltk.sent_tokenize(data[d]['refs_a'][0])
                         ref_a_sum_neg = nltk.sent_tokenize(data[d]['refs_a_neg'])
-                        
 
                         # ref aggregations
                         ref_sent_p1, ref_sent_p2, ref_sent1_ent, ref_sent2_ent, ref_count = self.cont_helper(ref_a_sum,
                                                                                                              ref_a_sum_neg,
-                                                                                                             None,
                                                                                                              'ref')
 
                         sent_pair_1 += ref_sent_p1
@@ -173,7 +168,7 @@ class SummNLI:
                         cont_probs_rev.append(cont_prob_rev)
 
                         print(d)
-                    
+
                 else:
                     for d in range(len(data)):
                         # ref summaries just first reference
@@ -184,8 +179,8 @@ class SummNLI:
                         # ref aggregations
                         ref_sent_p1, ref_sent_p2, ref_sent1_ent, ref_sent2_ent, ref_count = self.cont_helper(ref_a_sum,
                                                                                                              ref_b_sum,
-                                                                                                             ref_comm_sum,
-                                                                                                             'ref')
+                                                                                                             'ref',
+                                                                                                             ref_comm_sum)
 
                         sent_pair_1 += ref_sent_p1
                         sent_pair_2 += ref_sent_p2
@@ -218,8 +213,8 @@ class SummNLI:
                     # gen aggregations
                     gen_sent_p1, gen_sent_p2, gen_sent1_ent, gen_sent2_ent, gen_count = self.cont_helper(gen_a_sum,
                                                                                                          gen_b_sum,
-                                                                                                         gen_comm_sum,
-                                                                                                         'gen')
+                                                                                                         'gen',
+                                                                                                         gen_comm_sum)
 
                     sent_pair_1 += gen_sent_p1
                     sent_pair_2 += gen_sent_p2
@@ -266,22 +261,18 @@ class SummNLI:
                  })
 
         # SAVE CSV FILE
-        
+
         if self.negation == True:
             if self.summ_sent == True:
-            cont_df.to_csv(f'data/results/sumsent_nli_contrast_{self.summ_type}_{self.data_type}_neg.csv',
-                           index=None, header=True)
+                cont_df.to_csv(f'data/results/sumsent_nli_contrast_{self.summ_type}_{self.data_type}.csv', index=None, header=True)
             else:
-            cont_df.to_csv(f'data/results/sentpairs_nli_contrast_{self.summ_type}_{self.data_type}_neg.csv', index=None,
-                           header=True)
-            
+                cont_df.to_csv(f'data/results/sentpairs_nli_contrast_{self.summ_type}_{self.data_type}.csv', index=None, header=True)
+
         else:
             if self.summ_sent == True:
-                cont_df.to_csv(f'data/results/sumsent_nli_contrast_{self.summ_type}_{self.data_type}.csv',
-                               index=None, header=True)
+                cont_df.to_csv(f'data/results/sumsent_nli_contrast_{self.summ_type}_{self.data_type}.csv', index=None, header=True)
             else:
-                cont_df.to_csv(f'data/results/sentpairs_nli_contrast_{self.summ_type}_{self.data_type}.csv', index=None,
-                               header=True)
+                cont_df.to_csv(f'data/results/sentpairs_nli_contrast_{self.summ_type}_{self.data_type}.csv', index=None, header=True)
 
             # IF THE DATA_TYPE IS PARAPHRASES, SKIP FACTUALITY SINCE WE DON'T HAVE SOURCE DATA PARAPHRASES
         if self.data_type == 'paraphrase' or self.data_type == 'selfparaphrase':
@@ -289,12 +280,11 @@ class SummNLI:
 
         ##############################################################################################################
 
-        
         if self.factuality == False:
             return
-        
+
         else:
-        
+
             # RUN NLI FOR FACTUAL CONSISTENCY AND POPULAR OPINION
 
             if summ_to_sent == True:
@@ -322,7 +312,7 @@ class SummNLI:
                         ref_comm_sum = nltk.sent_tokenize(data[d]['refs_comm'][0])
 
                         # ref aggregations
-                        ref_sent_p1, ref_sent_p2, ref_sent1_source, ref_sent1_source_ent, ref_sent2_ent, ref_count =self.source_sent_fact_helper(
+                        ref_sent_p1, ref_sent_p2, ref_sent1_source, ref_sent1_source_ent, ref_sent2_ent, ref_count = self.source_sent_fact_helper(
                             source_a, source_b, ref_a_sum, ref_b_sum, ref_comm_sum, 'ref')
 
                         source_1 += ref_sent_p1
@@ -530,8 +520,7 @@ class SummNLI:
         labels = []
         prob = []
         combined_list = []
-        
-        
+
         if rev == True:
             for s1, s2 in zip(sent2, sent1):
                 combined_list.append(s1 + "<SEP>" + s2)
@@ -539,23 +528,23 @@ class SummNLI:
             for s1, s2 in zip(sent1, sent2):
                 combined_list.append(s1 + "<SEP>" + s2)
 
-#         if self.summ_sent == True:
+        #         if self.summ_sent == True:
 
-#             if rev == True:
-#                 for s1, s2 in zip(sent2, sent1):
-#                     combined_list.append(s1 + "<SEP>" + s2)
-#             else:
-#                 for s1, s2 in zip(sent1, sent2):
-#                     combined_list.append(s1 + "<SEP>" + s2)
+        #             if rev == True:
+        #                 for s1, s2 in zip(sent2, sent1):
+        #                     combined_list.append(s1 + "<SEP>" + s2)
+        #             else:
+        #                 for s1, s2 in zip(sent1, sent2):
+        #                     combined_list.append(s1 + "<SEP>" + s2)
 
-#         else:
+        #         else:
 
-#             if rev == True:
-#                 for s1, s2 in zip(sent2, sent1):
-#                     combined_list.append(s1 + ' ' + s2)
-#             else:
-#                 for s1, s2 in zip(sent1, sent2):
-#                     combined_list.append(s1 + ' ' + s2)
+        #             if rev == True:
+        #                 for s1, s2 in zip(sent2, sent1):
+        #                     combined_list.append(s1 + ' ' + s2)
+        #             else:
+        #                 for s1, s2 in zip(sent1, sent2):
+        #                     combined_list.append(s1 + ' ' + s2)
 
         results = self.pipe(combined_list)
 
@@ -567,7 +556,7 @@ class SummNLI:
         return labels, prob
 
     # HELPER METHOD FOR MAIN FUNCTION HELPFUL CONTRAST
-    def cont_helper(self, a_sum, b_sum, comm_sum = None, sum_type):
+    def cont_helper(self, a_sum, b_sum, sum_type, comm_sum=None):
 
         sum_types = []
         sent_p1 = []
@@ -583,7 +572,7 @@ class SummNLI:
                 sent1_ent.append('a')
                 sent2_ent.append('b')
                 count += 1
-                
+
         # if only give 2 summaires
         if comm_sum == None:
             sum_types += [sum_type] * count
@@ -608,7 +597,6 @@ class SummNLI:
         sum_types += [sum_type] * count
 
         return sent_p1, sent_p2, sent1_ent, sent2_ent, sum_types
-    
 
     # HELPER METHOD FOR HELPFUL CONTRAST IF SUMMARY SENTENCE PAIR
     def summ_sent_cont_helper(self, whole_a, whole_b, whole_comm, a_sum, b_sum, comm_sum, sum_type):

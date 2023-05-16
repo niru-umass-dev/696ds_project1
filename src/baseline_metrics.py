@@ -101,7 +101,7 @@ def get_ds_scores(combined_data: List[Dict], summ_type, evaluator, compute, nega
             
             
         if compute == "pair":
-            example_ds_score = calc_ds(cont_a, cont_b, evaluator)
+            example_ds_score = calc_ds_pair(cont_a, cont_b, evaluator)
             records.append((summ_type, split, example_id, cont_a, cont_b, example_ds_score))
         
         else:

@@ -7,7 +7,8 @@ python3 src/experiments.py -r nli-summ-sentpairs-01 -n "Generating (summ, ent) s
 python3 src/experiments.py -r paraphrase-binall-summsent-01 -n "Now scoring each sentence by comparing it with the other two summaries in the (summ -> sent) direction."
 python3 src/experiments.py -r paraphrase-binall-splitsent-01 -n "Now splitting each complex sent into simple sents before computing NLI metric."
 python3 src/experiments.py -r paraphrase-binall-splitsent-02-no-fact -n "Now splitting each complex sent into simple sents before computing NLI metric, wihtout evaluating factuality"
-
+python3 src/experiments.py -r negation-binall-splitsent-01-no-fact -n "Now running negation experiment on base and negated datasets on ref_a, ref_a_neg summaries. All-or-nothing binary treatment of labels. Only contrast, no factuality."
+python3 src/experiments.py -r negation-binall-splitsent-01-no-fact-roberta-large-snli_mnli_fever_anli_R1_R2_R3-nli -n "Same as negation-binall-splitsent-01-no-fact but different nli model"
 
 
 rm -rf data/results/sentpairs_nli_*

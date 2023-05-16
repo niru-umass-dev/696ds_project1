@@ -23,18 +23,23 @@ def get_nli_scores(data_type, component, summ_type, alphas = (0,0,0), run=None):
         
     records = []
     # retrieve actual summaries for records creation
-    dataset_path = f"data/combined_data_{data_type}.json"
+    dataset_path = f"data/combined_data_{data_type}_split_complete.json"
     dataset = json.load(open(dataset_path,'r'))
     for example_id, example in enumerate(dataset):
         split = example['split']
         if summ_type == 'gen' and split == 'train':
             continue
-        summ_a = example['refs_a'][0] if summ_type == 'ref' else example['gen_a']
-        summ_b = example['refs_b'][0] if summ_type == 'ref' else example['gen_b']
-        summ_comm = example['refs_comm'][0] if summ_type == 'ref' else example['gen_comm']
-        
-        nli_score_idx = example_id if summ_type == 'ref' else (example_id - 20)
-        records.append((summ_type, split, example_id, summ_a, summ_b, summ_comm, nli_scores[nli_score_idx]))
+        if data_type == 'negation':
+            summ_a = example['refs_a'][0] if summ_type == 'ref' else example['gen_a']
+            summ_a_neg = example['refs_a_neg'] if summ_type == 'ref' else example['gen_b']
+            nli_score_idx = example_id ## because we only do this for refs
+            records.append((summ_type, split, example_id, summ_a, summ_a_neg, nli_scores[nli_score_idx]))
+        else:
+            summ_a = example['refs_a'][0] if summ_type == 'ref' else example['gen_a']
+            summ_b = example['refs_b'][0] if summ_type == 'ref' else example['gen_b']
+            summ_comm = example['refs_comm'][0] if summ_type == 'ref' else example['gen_comm']
+            nli_score_idx = example_id if summ_type == 'ref' else (example_id - 20)
+            records.append((summ_type, split, example_id, summ_a, summ_b, summ_comm, nli_scores[nli_score_idx]))
     return records
 
 
@@ -101,10 +106,10 @@ mapper_summ_sent = {
 
 def resolve_labels(row):
     if row['fwd_label'] == row['bwd_label']:
-        return row['fwd_label']
-    elif 'NEUTRAL' in (labels := [row['fwd_label'], row['bwd_label']]):
+        return row['fwd_label'].upper()
+    elif 'NEUTRAL' in (labels := [row['fwd_label'].upper(), row['bwd_label'].upper()]):
         labels.remove('NEUTRAL')
-        return labels[0]
+        return labels[0].upper()
     else:
         return 'NEUTRAL'
 

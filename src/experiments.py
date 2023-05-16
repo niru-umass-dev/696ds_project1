@@ -49,8 +49,7 @@ args = parser.parse_args()
 summ_orig = ['ref'] # ["ref", "gen"]
 metrics = ['ds', 'bs', 'nli']
 nli_components = ["contrast", "factuality"]
-datasets =['base', 'negation'] #['base', 'paraphrase']# ['base', 'paraphrase', 'selfparaphrase']
-compute = "pair" #"triple"
+all_datasets = ['base', 'paraphrase', 'negation']
 experiments = {
     "paraphrase": {
         "paraphrase_model": "text-davinci-003",
@@ -70,7 +69,7 @@ run = wandb.init(
         "summ_orig": summ_orig, # Are we analyzing reference or generated summaries or both
         "summ_models": ["cocosum"], # if generated, then the model which generates the summaries
         "metrics": metrics, # metrics we are computing
-        "nli_models": ["roberta-large-mnli"], # model used for nli
+        "nli_models": ['roberta-large-snli_mnli_fever_anli_R1_R2_R3-nli'], #["roberta-large-mnli"], # model used for nli
         "nli_components": nli_components, # which nli desiderata
         "experiments": experiments,
         "timestamp": datetime_string,
@@ -80,6 +79,10 @@ run = wandb.init(
 
 if not os.path.isdir("data/results"):
     os.mkdir("data/results")
+
+experiment_summ_folder = f"data/results/{datetime_string}_{run.name}"
+if not os.path.isdir(experiment_summ_folder):
+    os.mkdir(experiment_summ_folder)
 
 ## GENERATE SOURCE FILES FOR EXPERIMENTS IF REQUIRED
 
@@ -113,7 +116,7 @@ if 'paraphrase' in experiments and not os.path.isfile("data/combined_data_paraph
 #     json.dump(paraphrase_dataset, open("data/combined_data_selfparaphrase.json", 'w'))
 
 # Generate Sentence-Pair Level NLI Scores if the files don't exist
-for dataset in datasets:
+for dataset in all_datasets:
     for summ_type in summ_orig:
         data_path = f"data/combined_data_{dataset}_split_complete.json"
         
@@ -140,10 +143,6 @@ for dataset in datasets:
 
             
 ## Create entity-pair level DS, BS, and NLI Scores for base, paraphrase, and selfparaphrase datasets
-
-exp_metrics = copy.deepcopy(metrics)
-exp_metrics.remove('nli')
-exp_metrics += [f"nli_{nli_component}" for nli_component in nli_components]
 evaluator = None
 scorer = None
 label_alpha_combs = {
@@ -154,7 +153,7 @@ label_alpha_combs = {
 }
 
 for summ_type in summ_orig:
-    for dataset in datasets:
+    for dataset in all_datasets:
         data_path = f"data/combined_data_{dataset}_split_complete.json"
         # data_path = f"data/combined_data_{dataset}.json"
         data = json.load(open(data_path,'r'))
@@ -166,11 +165,11 @@ for summ_type in summ_orig:
                     evaluator = get_evaluator() if evaluator is None else evaluator
                     
                     if dataset == 'negation':
-                        records = get_ds_scores(data, summ_type, evaluator, compute, negation = True)
+                        records = get_ds_scores(data, summ_type, evaluator, 'pair', negation = True)
                         df = pd.DataFrame.from_records(records, columns = ['summ_type','split','example_id', 'summ_a', 'summ_b', f'{metric}_score'])
                     
                     else:
-                        records = get_ds_scores(data, summ_type, evaluator, compute, negation = False)
+                        records = get_ds_scores(data, summ_type, evaluator, 'triple', negation = False)
                         df = pd.DataFrame.from_records(records, columns = ['summ_type','split','example_id', 'summ_a', 'summ_b', 'summ_comm', f'{metric}_score'])
                     df.to_csv(results_path, index=False)
             elif metric == 'bs':
@@ -180,11 +179,11 @@ for summ_type in summ_orig:
                     scorer = get_scorer() if scorer is None else scorer
                     
                     if dataset == 'negation':       
-                        records = get_bs_scores(data, summ_type, scorer, compute, negation = True)
+                        records = get_bs_scores(data, summ_type, scorer, 'pair', negation = True)
                         df = pd.DataFrame.from_records(records, columns = ['summ_type','split','example_id', 'summ_a', 'summ_b', f'{metric}_score'])
 
                     else:
-                        records = get_bs_scores(data, summ_type, scorer, compute, negation = False)
+                        records = get_bs_scores(data, summ_type, scorer, 'triple', negation = False)
                         df = pd.DataFrame.from_records(records, columns = ['summ_type','split','example_id', 'summ_a', 'summ_b', 'summ_comm', f'{metric}_score'])
                         
                     df.to_csv(results_path, index=False)
@@ -196,7 +195,10 @@ for summ_type in summ_orig:
                     if not os.path.isfile(results_path):
                         print(f"Not Found:{results_path}")
                         records = get_nli_scores(data_type=dataset, component=nli_component,summ_type=summ_type, alphas=label_alpha_combs[label], run=run)
-                        df = pd.DataFrame.from_records(records, columns = ['summ_type','split','example_id', 'summ_a', 'summ_b', 'summ_comm', f'{metric}_{nli_component}_{label}_score'])
+                        if dataset == 'negation':
+                            df = pd.DataFrame.from_records(records, columns = ['summ_type','split','example_id', 'summ_a', 'summ_a_neg', f'{metric}_{nli_component}_{label}_score'])
+                        else:
+                            df = pd.DataFrame.from_records(records, columns = ['summ_type','split','example_id', 'summ_a', 'summ_b', 'summ_comm', f'{metric}_{nli_component}_{label}_score'])
                         df.to_csv(results_path, index=False)
                         wandb.save(results_path)
                 
@@ -211,17 +213,14 @@ for summ_type in summ_orig:
                 #     df.to_csv(results_path, index=False)
                 #     wandb.save(results_path)
 
-                    
+
 # EXPERIMENT 1: RESULTS
-
-experiment_summ_folder = f"data/results/{datetime_string}_{run.name}"
-if not os.path.isdir(experiment_summ_folder):
-    os.mkdir(experiment_summ_folder)
-
+experiment_name = 'paraphrase'
+experiment_datasets = ['base', 'paraphrase']
 headers = []
 for summ_type in summ_orig:
     records = []
-    for dataset in datasets:
+    for dataset in experiment_datasets:
         record = []
         record.append(dataset)
         headers = ['data_type']
@@ -229,22 +228,12 @@ for summ_type in summ_orig:
             if metric != 'nli':
                 col_name = f"{metric}_score"
                 
+                # Get base scores
+                base_file_path = f"data/results/{metric}_{summ_type}_base.csv"
+                base_scores = pd.read_csv(base_file_path)[col_name].to_list()
                 
-                if 'negation' in datasets:
-                    # Get base scores
-                    base_file_path = f"data/results/{metric}_{summ_type}_base.csv"
-                    base_scores = pd.read_csv(base_file_path)[col_name].to_list()[20:30]
-
-                    file_path = f"data/results/{metric}_{summ_type}_{dataset}.csv"
-                    scores = pd.read_csv(file_path)[col_name].to_list()[20:30]
-                    
-                else:
-                    # Get base scores
-                    base_file_path = f"data/results/{metric}_{summ_type}_base.csv"
-                    base_scores = pd.read_csv(base_file_path)[col_name].to_list()
-
-                    file_path = f"data/results/{metric}_{summ_type}_{dataset}.csv"
-                    scores = pd.read_csv(file_path)[col_name].to_list()
+                file_path = f"data/results/{metric}_{summ_type}_{dataset}.csv"
+                scores = pd.read_csv(file_path)[col_name].to_list()
                 
                 mean, std_dev, corr, rank_corr, plt = get_centtend_measures(base_scores, scores)
                 plt.savefig(os.path.join(experiment_summ_folder, f"{summ_type}_{metric}_{dataset}.png"))
@@ -270,53 +259,6 @@ for summ_type in summ_orig:
                     record.extend([mean, std_dev, corr, rank_corr])
                     metric_header_name = f"{metric}_{nli_component}_{label}"
                     headers.extend([f"mean({metric_header_name})", f"std_dev({metric_header_name})", f"corr({metric_header_name})", f"rank_corr({metric_header_name})"])
-
-# experiment_summ_folder = f"data/results/{datetime_string}_{run.name}"
-# if not os.path.isdir(experiment_summ_folder):
-#     os.mkdir(experiment_summ_folder)
-
-# headers = []
-# for summ_type in summ_orig:
-#     records = []
-#     for dataset in datasets:
-#         record = []
-#         record.append(dataset)
-#         headers = ['data_type']
-#         for metric in metrics:
-#             if metric != 'nli':
-#                 col_name = f"{metric}_score"
-                
-#                 # Get base scores
-#                 base_file_path = f"data/results/{metric}_{summ_type}_base.csv"
-#                 base_scores = pd.read_csv(base_file_path)[col_name].to_list()
-                
-#                 file_path = f"data/results/{metric}_{summ_type}_{dataset}.csv"
-#                 scores = pd.read_csv(file_path)[col_name].to_list()
-                
-#                 mean, std_dev, corr, rank_corr, plt = get_centtend_measures(base_scores, scores)
-#                 plt.savefig(os.path.join(experiment_summ_folder, f"{summ_type}_{metric}_{dataset}.png"))
-                
-#                 record.extend([mean, std_dev, corr, rank_corr])
-#                 metric_header_name = metric
-#                 headers.extend([f"mean({metric_header_name})", f"std_dev({metric_header_name})", f"corr({metric_header_name})", f"rank_corr({metric_header_name})"])
-#             elif metric == 'nli':
-                
-#                 nli_component = 'contrast'
-#                 for label in label_alpha_combs.keys():
-#                     col_name = f"{metric}_{nli_component}_{label}_score"
-#                     # Get base scores
-#                     base_file_path = f"data/results/{metric}_{nli_component}_{summ_type}_base_{label}.csv"
-#                     base_scores = pd.read_csv(base_file_path)[col_name].to_list()
-                    
-#                     file_path = f"data/results/{metric}_{nli_component}_{summ_type}_{dataset}_{label}.csv"
-#                     scores = pd.read_csv(file_path)[col_name].to_list()
-                    
-#                     mean, std_dev, corr, rank_corr, plt = get_centtend_measures(base_scores, scores)
-#                     plt.savefig(os.path.join(experiment_summ_folder, f"{summ_type}_{metric}_{nli_component}_{label}_{dataset}.png"))
-                    
-#                     record.extend([mean, std_dev, corr, rank_corr])
-#                     metric_header_name = f"{metric}_{nli_component}_{label}"
-#                     headers.extend([f"mean({metric_header_name})", f"std_dev({metric_header_name})", f"corr({metric_header_name})", f"rank_corr({metric_header_name})"])
                 
 #                 nli_component = 'factuality'
 #                 col_name = f"{metric}_{nli_component}_score"
@@ -338,7 +280,68 @@ for summ_type in summ_orig:
 #                 headers.extend([f"mean({metric_header_name})", f"std_dev({metric_header_name})", f"corr({metric_header_name})", f"rank_corr({metric_header_name})"])
     
         records.append(record)
-    experiment_summ_path = os.path.join(experiment_summ_folder,f"{summ_type}_experiment_paraphrase_summary.csv")
+    experiment_summ_path = os.path.join(experiment_summ_folder,f"{summ_type}_experiment_{experiment_name}_summary.csv")
+    pd.DataFrame(records, columns = headers).to_csv(experiment_summ_path, index=False)
+    wandb.save(experiment_summ_path)
+                
+
+                
+# EXPERIMENT 2 NEGATION: RESULTS
+
+experiment_name = 'negation'
+experiment_datasets = ['base', 'negation']
+example_range = (20,30)
+headers = []
+for summ_type in summ_orig:
+    records = []
+    for dataset in experiment_datasets:
+        record = []
+        record.append(dataset)
+        headers = ['data_type']
+        for metric in metrics:
+            if metric != 'nli':
+                col_name = f"{metric}_score"
+                # Get base scores
+                base_file_path = f"data/results/{metric}_{summ_type}_base.csv"
+                base_scores = pd.read_csv(base_file_path)[col_name].to_list()[example_range[0]:example_range[1]]
+
+                file_path = f"data/results/{metric}_{summ_type}_{dataset}.csv"
+                if dataset == 'negation':
+                    scores = pd.read_csv(file_path)[col_name].to_list()
+                else:
+                    scores = pd.read_csv(file_path)[col_name].to_list()[example_range[0]:example_range[1]]
+                                    
+                mean, std_dev, corr, rank_corr, plt = get_centtend_measures(base_scores, scores)
+                plt.savefig(os.path.join(experiment_summ_folder, f"{summ_type}_{metric}_{dataset}.png"))
+                
+                record.extend([mean, std_dev, corr, rank_corr])
+                metric_header_name = metric
+                headers.extend([f"mean({metric_header_name})", f"std_dev({metric_header_name})", f"corr({metric_header_name})", f"rank_corr({metric_header_name})"])
+            elif metric == 'nli':
+                
+                nli_component = 'contrast'
+                for label in label_alpha_combs.keys():
+                    col_name = f"{metric}_{nli_component}_{label}_score"
+                    # Get base scores
+                    base_file_path = f"data/results/{metric}_{nli_component}_{summ_type}_base_{label}.csv"
+                    base_scores = pd.read_csv(base_file_path)[col_name].to_list()[example_range[0]:example_range[1]]
+                    
+                    file_path = f"data/results/{metric}_{nli_component}_{summ_type}_{dataset}_{label}.csv"
+                    if dataset == 'negation':
+                        scores = pd.read_csv(file_path)[col_name].to_list()
+                    else:
+                        scores = pd.read_csv(file_path)[col_name].to_list()[example_range[0]:example_range[1]]
+                    
+                    mean, std_dev, corr, rank_corr, plt = get_centtend_measures(base_scores, scores)
+                    plt.savefig(os.path.join(experiment_summ_folder, f"{summ_type}_{metric}_{nli_component}_{label}_{dataset}.png"))
+                    
+                    record.extend([mean, std_dev, corr, rank_corr])
+                    metric_header_name = f"{metric}_{nli_component}_{label}"
+                    headers.extend([f"mean({metric_header_name})", f"std_dev({metric_header_name})", f"corr({metric_header_name})", f"rank_corr({metric_header_name})"])
+
+    
+        records.append(record)
+    experiment_summ_path = os.path.join(experiment_summ_folder,f"{summ_type}_experiment_{experiment_name}_summary.csv")
     pd.DataFrame(records, columns = headers).to_csv(experiment_summ_path, index=False)
     wandb.save(experiment_summ_path)
             
