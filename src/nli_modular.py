@@ -16,13 +16,13 @@ class SummNLI:
                  summ_sent: bool = False, factuality: bool = False, negation: bool = False):
 
         # ROBERTA-LARGE-MNLI
-        # self.pipe = pipeline("text-classification", model='roberta-large-mnli', return_all_scores=True, device=0)
-        # self.label_mapping = ['contradiction', 'neutral', 'entailment']
+        self.pipe = pipeline("text-classification", model='roberta-large-mnli', return_all_scores=True, device=0)
+        self.label_mapping = ['contradiction', 'neutral', 'entailment']
 
         # ROBERTA-LARGE-SNLI-MNLI-FEVER-ANLI...
         # https://huggingface.co/ynie/roberta-large-snli_mnli_fever_anli_R1_R2_R3-nli
-        self.pipe = pipeline("text-classification", model='ynie/roberta-large-snli_mnli_fever_anli_R1_R2_R3-nli', return_all_scores=True, device=0)
-        self.label_mapping = ['entailment', 'neutral', 'contradiction']
+        # self.pipe = pipeline("text-classification", model='ynie/roberta-large-snli_mnli_fever_anli_R1_R2_R3-nli', return_all_scores=True, device=0)
+        # self.label_mapping = ['entailment', 'neutral', 'contradiction']
 
         self.data = json.load(open(data_path, 'r'))
         self.data_type = data_type
