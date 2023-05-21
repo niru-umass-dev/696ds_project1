@@ -235,7 +235,7 @@ for summ_type in summ_orig:
                 file_path = f"data/results/{metric}_{summ_type}_{dataset}.csv"
                 scores = pd.read_csv(file_path)[col_name].to_list()
                 
-                mean, std_dev, corr, rank_corr, plt = get_centtend_measures(base_scores, scores)
+                mean, std_dev, corr, rank_corr, plt = get_centtend_measures(base_scores, scores, metric)
                 plt.savefig(os.path.join(experiment_summ_folder, f"{summ_type}_{metric}_{dataset}.png"))
                 
                 record.extend([mean, std_dev, corr, rank_corr])
@@ -253,7 +253,7 @@ for summ_type in summ_orig:
                     file_path = f"data/results/{metric}_{nli_component}_{summ_type}_{dataset}_{label}.csv"
                     scores = pd.read_csv(file_path)[col_name].to_list()
                     
-                    mean, std_dev, corr, rank_corr, plt = get_centtend_measures(base_scores, scores)
+                    mean, std_dev, corr, rank_corr, plt = get_centtend_measures(base_scores, scores, metric, label)
                     plt.savefig(os.path.join(experiment_summ_folder, f"{summ_type}_{metric}_{nli_component}_{label}_{dataset}.png"))
                     
                     record.extend([mean, std_dev, corr, rank_corr])
@@ -305,7 +305,7 @@ for summ_type in summ_orig:
                 file_path = f"data/results/{metric}_{summ_type}_{dataset}.csv"
                 scores = pd.read_csv(file_path)[col_name].to_list()
                 
-                mean, std_dev, corr, rank_corr, plt = get_centtend_measures(base_scores, scores)
+                mean, std_dev, corr, rank_corr, plt = get_centtend_measures(base_scores, scores, metric)
                 plt.savefig(os.path.join(experiment_summ_folder, f"{summ_type}_{metric}_{dataset}.png"))
                 
                 record.extend([mean, std_dev, corr, rank_corr])
@@ -323,7 +323,7 @@ for summ_type in summ_orig:
                     file_path = f"data/results/{metric}_{nli_component}_{summ_type}_{dataset}_{label}.csv"
                     scores = pd.read_csv(file_path)[col_name].to_list()
                     
-                    mean, std_dev, corr, rank_corr, plt = get_centtend_measures(base_scores, scores)
+                    mean, std_dev, corr, rank_corr, plt = get_centtend_measures(base_scores, scores, metric, label)
                     plt.savefig(os.path.join(experiment_summ_folder, f"{summ_type}_{metric}_{nli_component}_{label}_{dataset}.png"))
                     
                     record.extend([mean, std_dev, corr, rank_corr])
@@ -380,7 +380,7 @@ for summ_type in summ_orig:
                 else:
                     scores = pd.read_csv(file_path)[col_name].to_list()[example_range[0]:example_range[1]]
                                     
-                mean, std_dev, corr, rank_corr, plt = get_centtend_measures(base_scores, scores)
+                mean, std_dev, corr, rank_corr, plt = get_centtend_measures(base_scores, scores, metric)
                 plt.savefig(os.path.join(experiment_summ_folder, f"{summ_type}_{metric}_{dataset}.png"))
                 
                 record.extend([mean, std_dev, corr, rank_corr])
@@ -401,7 +401,7 @@ for summ_type in summ_orig:
                     else:
                         scores = pd.read_csv(file_path)[col_name].to_list()[example_range[0]:example_range[1]]
                     
-                    mean, std_dev, corr, rank_corr, plt = get_centtend_measures(base_scores, scores)
+                    mean, std_dev, corr, rank_corr, plt = get_centtend_measures(base_scores, scores, metric, label)
                     plt.savefig(os.path.join(experiment_summ_folder, f"{summ_type}_{metric}_{nli_component}_{label}_{dataset}.png"))
                     
                     record.extend([mean, std_dev, corr, rank_corr])

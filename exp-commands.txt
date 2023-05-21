@@ -13,6 +13,8 @@ python3 src/experiments.py -r negation-binall-splitsent-01-no-fact-roberta-large
 
 python3 src/experiments.py -r similarity-binall-splitsent-01-no-fact -n "Now running similarity experiment"
 
+python3 src/experiments.py -r rescale-metrics-0-1 -n "Rerunning everything with all metrics rescaled to [0, 1]"
+
 
 rm -rf data/results/sentpairs_nli_*
 rm -rf data/results/nli_contrast_*
