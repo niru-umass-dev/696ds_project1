@@ -212,13 +212,13 @@ def get_indexed_simple_sent_dataset(source_dataset, temp_folder_prefix=""):
 # source reviews are the same across all datasets (base, paraphrase, selfparaphrase) but in 
 # similarity the source review sets of both entities are the same
 
-original_dataset = json.load(open("data/combined_data_similarity.json", 'r'))
+original_dataset = json.load(open("data/combined_data_selfparaphrase.json", 'r'))
 
 sent_indexed_dataset = get_sent_indexed_dataset(original_dataset)
-json.dump(sent_indexed_dataset, open("data/temporary_dataset_files/similarity_split/sent_indexed_dataset.json", "w"))
+json.dump(sent_indexed_dataset, open("data/temporary_dataset_files/selfparaphrase_sent_level/sent_indexed_dataset.json", "w"))
 
-indexed_split_sent_dataset = get_indexed_simple_sent_dataset(sent_indexed_dataset, temp_folder_prefix="similarity_split/")
-json.dump(indexed_split_sent_dataset, open("data/temporary_dataset_files/similarity_split/indexed_split_sent_dataset.json", "w"))
+indexed_split_sent_dataset = get_indexed_simple_sent_dataset(sent_indexed_dataset, temp_folder_prefix="selfparaphrase_sent_level/")
+json.dump(indexed_split_sent_dataset, open("data/temporary_dataset_files/selfparaphrase_sent_level/indexed_split_sent_dataset.json", "w"))
 
 paragraph_split_sent_dataset = get_paragraph_simple_sent_dataset(indexed_split_sent_dataset)
-json.dump(paragraph_split_sent_dataset, open("data/combined_data_similarity_split_complete.json", "w"))
+json.dump(paragraph_split_sent_dataset, open("data/combined_data_selfparaphrase_split_complete.json", "w"))

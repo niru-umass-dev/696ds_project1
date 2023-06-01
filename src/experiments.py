@@ -49,7 +49,7 @@ args = parser.parse_args()
 summ_orig = ['ref'] # ["ref", "gen"]
 metrics = ['ds', 'bs', 'nli']
 nli_components = ["contrast", "factuality"]
-all_datasets = ['base', 'paraphrase', 'negation', 'similarity']
+all_datasets = ['base', 'paraphrase', 'negation', 'similarity', 'selfparaphrase']
 experiments = {
     "paraphrase": {
         "paraphrase_model": "text-davinci-003",
@@ -214,7 +214,7 @@ for summ_type in summ_orig:
                 #     wandb.save(results_path)
 
 
-# EXPERIMENT 1: SIMILARITY AND PARAPHRASING RESULTS
+# EXPERIMENT 1: SIMILARITY RESULTS
 experiment_name = 'similarity'
 experiment_datasets = ['base', 'similarity']
 headers = []
@@ -413,5 +413,77 @@ for summ_type in summ_orig:
     experiment_summ_path = os.path.join(experiment_summ_folder,f"{summ_type}_experiment_{experiment_name}_summary.csv")
     pd.DataFrame(records, columns = headers).to_csv(experiment_summ_path, index=False)
     wandb.save(experiment_summ_path)
+
+
+# EXPERIMENT 4: SELFPARAPHRASING RESULTS
+experiment_name = 'selfparaphrase'
+experiment_datasets = ['base', 'selfparaphrase']
+headers = []
+for summ_type in summ_orig:
+    records = []
+    for dataset in experiment_datasets:
+        record = []
+        record.append(dataset)
+        headers = ['data_type']
+        for metric in metrics:
+            if metric != 'nli':
+                col_name = f"{metric}_score"
+                
+                # Get base scores
+                base_file_path = f"data/results/{metric}_{summ_type}_base.csv"
+                base_scores = pd.read_csv(base_file_path)[col_name].to_list()
+                
+                file_path = f"data/results/{metric}_{summ_type}_{dataset}.csv"
+                scores = pd.read_csv(file_path)[col_name].to_list()
+                
+                mean, std_dev, corr, rank_corr, plt = get_centtend_measures(base_scores, scores, metric)
+                plt.savefig(os.path.join(experiment_summ_folder, f"{summ_type}_{metric}_{dataset}.png"))
+                
+                record.extend([mean, std_dev, corr, rank_corr])
+                metric_header_name = metric
+                headers.extend([f"mean({metric_header_name})", f"std_dev({metric_header_name})", f"corr({metric_header_name})", f"rank_corr({metric_header_name})"])
+            elif metric == 'nli':
+                
+                nli_component = 'contrast'
+                for label in label_alpha_combs.keys():
+                    col_name = f"{metric}_{nli_component}_{label}_score"
+                    # Get base scores
+                    base_file_path = f"data/results/{metric}_{nli_component}_{summ_type}_base_{label}.csv"
+                    base_scores = pd.read_csv(base_file_path)[col_name].to_list()
+                    
+                    file_path = f"data/results/{metric}_{nli_component}_{summ_type}_{dataset}_{label}.csv"
+                    scores = pd.read_csv(file_path)[col_name].to_list()
+                    
+                    mean, std_dev, corr, rank_corr, plt = get_centtend_measures(base_scores, scores, metric, label)
+                    plt.savefig(os.path.join(experiment_summ_folder, f"{summ_type}_{metric}_{nli_component}_{label}_{dataset}.png"))
+                    
+                    record.extend([mean, std_dev, corr, rank_corr])
+                    metric_header_name = f"{metric}_{nli_component}_{label}"
+                    headers.extend([f"mean({metric_header_name})", f"std_dev({metric_header_name})", f"corr({metric_header_name})", f"rank_corr({metric_header_name})"])
+                
+#                 nli_component = 'factuality'
+#                 col_name = f"{metric}_{nli_component}_score"
+                
+#                 # Get base scores
+#                 base_file_path = f"data/results/{metric}_{nli_component}_{summ_type}_base.csv"
+#                 base_scores = pd.read_csv(base_file_path)[col_name].to_list()
+#                 if dataset != 'base':
+#                     scores = [0] * len(base_scores)
+#                 else:
+#                     file_path = f"data/results/{metric}_{nli_component}_{summ_type}_{dataset}.csv"
+#                     scores = pd.read_csv(file_path)[col_name].to_list()
+                
+#                 mean, std_dev, corr, rank_corr, plt = get_centtend_measures(base_scores, scores)
+#                 plt.savefig(os.path.join(experiment_summ_folder, f"{summ_type}_{metric}_{nli_component}_{dataset}.png"))
+                
+#                 record.extend([mean, std_dev, corr, rank_corr])
+#                 metric_header_name = f"{metric}_{nli_component}"
+#                 headers.extend([f"mean({metric_header_name})", f"std_dev({metric_header_name})", f"corr({metric_header_name})", f"rank_corr({metric_header_name})"])
+    
+        records.append(record)
+    experiment_summ_path = os.path.join(experiment_summ_folder,f"{summ_type}_experiment_{experiment_name}_summary.csv")
+    pd.DataFrame(records, columns = headers).to_csv(experiment_summ_path, index=False)
+    wandb.save(experiment_summ_path)
+
 
 wandb.finish()

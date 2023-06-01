@@ -8,12 +8,13 @@ import numpy as np
 from typing import List
 import nltk
 import backoff
+from transformers import GPT2TokenizerFast
 nltk.download('punkt')
 
 openai.api_key = os.getenv('OPENAI_API_KEY')
 
 @backoff.on_exception(backoff.expo, openai.error.RateLimitError)
-def _get_paraphrase_(input_sentence: str, max_tokens: int = 250, n: int = 1):
+def _get_paraphrase_(input_sentence: str, max_tokens: int = 512, n: int = 1):
     prompt = f"Paraphrase this: f'{input_sentence}'"
     response = openai.Completion.create(
         model="text-davinci-003",
@@ -121,3 +122,62 @@ def get_para_dataset_sent_level(orig_dataset_path: str, control_length: bool, n:
             
         paraphrase_data.append(new_example)
     return paraphrase_data
+
+def get_selfpara_dataset_sent_level(orig_dataset_path: str, temp_save_path:str, control_length: bool, n: int, dummy: bool, tokenizer = None, sleep = 0):
+    # replace "dummy value" with get_paraphrase(item, max_len)
+    completed_paraphrases = {} if not os.path.isfile(temp_save_path) else json.load(open(temp_save_path, 'r'))
+    combined_data = json.load(open(orig_dataset_path, 'r'))
+    # progress_bar = tqdm(range(228))
+    src_header_name = 'refs_a'
+    tgt_header_names = ['refs_b', 'refs_comm']
+    # gen_headers = ['gen_a', 'gen_b', 'gen_comm']
+    paraphrase_data = []
+    for idx, example in enumerate(combined_data):
+        new_example = dict()
+        new_example['split'] = example['split']
+        new_example['entity_a'] = example['entity_a']
+        new_example['entity_b'] = example['entity_b']
+        original_summaries = [example[src_header_name][0]]
+        new_example.update({f"{src_header_name}": original_summaries})
+        for header in tgt_header_names:
+            para_summ_sents_list = []
+            for summ_no, summary in enumerate(original_summaries):
+                summary_sents = nltk.sent_tokenize(summary)        
+                para_summ_sents_list.append([get_para_output(input_summ=summary_sent, control_length=control_length, n=n, dummy=dummy, tokenizer=tokenizer) for summary_sent in summary_sents])
+            para_summs = [" ".join(para_summ_sents) for para_summ_sents in para_summ_sents_list]
+            completed_paraphrases[f"{idx}_{header}_{summ_no}"] = para_summs
+            json.dump(completed_paraphrases, open(temp_save_path, "w"))
+            new_example.update({f"{header}": para_summs})
+            original_summaries = para_summs
+            
+        paraphrase_data.append(new_example)
+    return paraphrase_data
+
+
+if __name__ == '__main__':
+    source_dataset_path = "data/combined_data_base.json"
+    save_folder_name = "selfparaphrase_sent_level"
+    temp_file_name = "combined_data_selfparaphrase_temp.json"
+    final_file_name = "combined_data_selfparaphrase.json"
+    
+    save_folder_path = os.path.join('data/temporary_dataset_files', save_folder_name)
+    if not os.path.isdir(save_folder_path):
+        os.mkdir(save_folder_path)
+    
+    gpt2_tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
+    temp_file_path = os.path.join(save_folder_path, temp_file_name)
+    paraphrase_data = get_selfpara_dataset_sent_level(
+        orig_dataset_path = source_dataset_path,
+        temp_save_path = temp_file_path,
+        control_length = False,
+        n = 1,
+        dummy = False,
+        tokenizer = gpt2_tokenizer,
+        sleep = 0
+    )
+    
+    final_file_path = os.path.join(save_folder_path, final_file_name)
+    json.dump(paraphrase_data, open(final_file_path, "w"))
+    
+
+
