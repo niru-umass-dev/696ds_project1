@@ -15,6 +15,12 @@ python3 src/experiments.py -r similarity-binall-splitsent-01-no-fact -n "Now run
 
 python3 src/experiments.py -r rescale-metrics-0-1 -n "Rerunning everything with all metrics rescaled to [0, 1]"
 
+python3 src/experiments.py -r test-local-env-01 -n "Rerunning everything on local environment"
+
+python3 src/experiments.py -r aggregation-change-01-otherentity -n "Rerunning everything but changed aggregation of each sentence to level of other entity before taking a mean"
+python3 src/experiments.py -r aggregation-change-02-newentcont -n "Rerunning everything but now computing majority between ent and cont for a single sentence"
+python3 src/experiments.py -r aggregation-change-03-both -n "Rerunning everything but now combining changes from aggregation-change-01-otherentity and aggregation-change-02-newentcont"
+
 
 rm -rf data/results/sentpairs_nli_*
 rm -rf data/results/nli_contrast_*
