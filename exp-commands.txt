@@ -21,7 +21,11 @@ python3 src/experiments.py -r aggregation-change-01-otherentity -n "Rerunning ev
 python3 src/experiments.py -r aggregation-change-02-newentcont -n "Rerunning everything but now computing majority between ent and cont for a single sentence"
 python3 src/experiments.py -r aggregation-change-03-both -n "Rerunning everything but now combining changes from aggregation-change-01-otherentity and aggregation-change-02-newentcont"
 
+python3 src/experiments.py -r negation-all-examples-01 -n "Exapnded negation experiment to 48 examples"
+
 
 rm -rf data/results/sentpairs_nli_*
 rm -rf data/results/nli_contrast_*
 rm -rf data/results/nli_factuality_*
+
+export

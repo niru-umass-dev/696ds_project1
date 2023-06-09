@@ -359,7 +359,7 @@ for summ_type in summ_orig:
 
 experiment_name = 'negation'
 experiment_datasets = ['base', 'negation']
-example_range = (20,30)
+example_range = (0,48)
 headers = []
 for summ_type in summ_orig:
     records = []
