@@ -169,8 +169,10 @@ for summ_type in summ_orig:
                         df = pd.DataFrame.from_records(records, columns = ['summ_type','split','example_id', 'summ_a', 'summ_b', f'{metric}_score'])
                     
                     else:
-                        records = get_ds_scores(data, summ_type, evaluator, 'triple', negation = False)
-                        df = pd.DataFrame.from_records(records, columns = ['summ_type','split','example_id', 'summ_a', 'summ_b', 'summ_comm', f'{metric}_score'])
+                        # records = get_ds_scores(data, summ_type, evaluator, 'triple', negation = False)
+                        # df = pd.DataFrame.from_records(records, columns = ['summ_type','split','example_id', 'summ_a', 'summ_b', 'summ_comm', f'{metric}_score'])
+                        records = get_ds_scores(data, summ_type, evaluator, 'pair', negation=False)
+                        df = pd.DataFrame.from_records(records, columns=['summ_type', 'split', 'example_id', 'summ_a', 'summ_b', f'{metric}_score'])
                     df.to_csv(results_path, index=False)
             elif metric == 'bs':
                 results_path = f"data/results/{metric}_{summ_type}_{dataset}.csv"
@@ -183,8 +185,10 @@ for summ_type in summ_orig:
                         df = pd.DataFrame.from_records(records, columns = ['summ_type','split','example_id', 'summ_a', 'summ_b', f'{metric}_score'])
 
                     else:
-                        records = get_bs_scores(data, summ_type, scorer, 'triple', negation = False)
-                        df = pd.DataFrame.from_records(records, columns = ['summ_type','split','example_id', 'summ_a', 'summ_b', 'summ_comm', f'{metric}_score'])
+                        # records = get_bs_scores(data, summ_type, scorer, 'triple', negation = False)
+                        # df = pd.DataFrame.from_records(records, columns = ['summ_type','split','example_id', 'summ_a', 'summ_b', 'summ_comm', f'{metric}_score'])
+                        records = get_bs_scores(data, summ_type, scorer, 'pair', negation=False)
+                        df = pd.DataFrame.from_records(records, columns=['summ_type', 'split', 'example_id', 'summ_a', 'summ_b', f'{metric}_score'])
                         
                     df.to_csv(results_path, index=False)
             elif metric == 'nli':
@@ -198,7 +202,8 @@ for summ_type in summ_orig:
                         if dataset == 'negation':
                             df = pd.DataFrame.from_records(records, columns = ['summ_type','split','example_id', 'summ_a', 'summ_a_neg', f'{metric}_{nli_component}_{label}_score'])
                         else:
-                            df = pd.DataFrame.from_records(records, columns = ['summ_type','split','example_id', 'summ_a', 'summ_b', 'summ_comm', f'{metric}_{nli_component}_{label}_score'])
+                            # df = pd.DataFrame.from_records(records, columns = ['summ_type','split','example_id', 'summ_a', 'summ_b', 'summ_comm', f'{metric}_{nli_component}_{label}_score'])
+                            df = pd.DataFrame.from_records(records, columns=['summ_type', 'split', 'example_id', 'summ_a', 'summ_b', f'{metric}_{nli_component}_{label}_score'])
                         df.to_csv(results_path, index=False)
                         wandb.save(results_path)
                 

@@ -4,9 +4,10 @@ import json
 import wandb
 import numpy as np
 
-def get_nli_scores(data_type, component, summ_type, alphas = (0,0,0), run=None):
+
+def get_nli_scores(data_type, component, summ_type, alphas=(0, 0, 0), run=None):
     data_path = f"data/results/sentpairs_nli_{component}_{summ_type}_{data_type}.csv"
-    
+
     if component == 'contrast':
         alpha_ent = alphas[0]
         alpha_neut = alphas[1]
@@ -18,16 +19,19 @@ def get_nli_scores(data_type, component, summ_type, alphas = (0,0,0), run=None):
         # nli_scores = nli_contrast_bin_real(data_path=data_path,pairwise_aggregation='mixed',alphas=(alpha_ent,alpha_neut,alpha_cont), summ_type=summ_type, run=run)
         # nli_scores = nli_contrast_bin_all_summ_level(data_path=data_path,pairwise_aggregation='sum',alphas=(alpha_ent,alpha_neut,alpha_cont), summ_type=summ_type, run=run)
         # nli_scores = nli_contrast_bin_all_2_otherent(data_path=data_path, pairwise_aggregation='sum',alphas=(alpha_ent, alpha_neut, alpha_cont), summ_type=summ_type, run=run)
-        nli_scores = nli_contrast_bin_all_3(data_path=data_path, pairwise_aggregation='sum',alphas=(alpha_ent, alpha_neut, alpha_cont), summ_type=summ_type, run=run)
+        # nli_scores = nli_contrast_bin_all_3(data_path=data_path, pairwise_aggregation='sum',alphas=(alpha_ent, alpha_neut, alpha_cont), summ_type=summ_type, run=run)
         # nli_scores = nli_contrast_bin_all_3_otherent(data_path=data_path, pairwise_aggregation='sum',alphas=(alpha_ent, alpha_neut, alpha_cont), summ_type=summ_type, run=run)
-        
+        nli_scores = nli_contrast_bin_all_3_pair(data_path=data_path, pairwise_aggregation='sum',
+                                                 alphas=(alpha_ent, alpha_neut, alpha_cont), summ_type=summ_type,
+                                                 run=run)
+
     elif component == 'factuality':
         nli_scores = nli_fact_bin_ent(data_path=data_path, summ_type=summ_type)
-        
+
     records = []
     # retrieve actual summaries for records creation
     dataset_path = f"data/combined_data_{data_type}_split_complete.json"
-    dataset = json.load(open(dataset_path,'r'))
+    dataset = json.load(open(dataset_path, 'r'))
     for example_id, example in enumerate(dataset):
         split = example['split']
         if summ_type == 'gen' and split == 'train':
@@ -35,36 +39,38 @@ def get_nli_scores(data_type, component, summ_type, alphas = (0,0,0), run=None):
         if data_type == 'negation':
             summ_a = example['refs_a'][0] if summ_type == 'ref' else example['gen_a']
             summ_a_neg = example['refs_a_neg'] if summ_type == 'ref' else example['gen_b']
-            nli_score_idx = example_id ## because we only do this for refs
+            nli_score_idx = example_id  ## because we only do this for refs
             records.append((summ_type, split, example_id, summ_a, summ_a_neg, nli_scores[nli_score_idx]))
         else:
             summ_a = example['refs_a'][0] if summ_type == 'ref' else example['gen_a']
             summ_b = example['refs_b'][0] if summ_type == 'ref' else example['gen_b']
             summ_comm = example['refs_comm'][0] if summ_type == 'ref' else example['gen_comm']
             nli_score_idx = example_id if summ_type == 'ref' else (example_id - 20)
-            records.append((summ_type, split, example_id, summ_a, summ_b, summ_comm, nli_scores[nli_score_idx]))
+            # records.append((summ_type, split, example_id, summ_a, summ_b, summ_comm, nli_scores[nli_score_idx]))
+            records.append((summ_type, split, example_id, summ_a, summ_b, nli_scores[nli_score_idx]))
     return records
 
 
 def nli_fact_bin_ent(data_path: str = "data/factuality_popular_final.csv", summ_type='ref') -> List[float]:
     df = pd.read_csv(data_path)
     # df['is_ent'] = df.apply(lambda row: 1 if row['1_2_Label']=='ENTAILMENT' or row['2_1_Label']=='ENTAILMENT' else 0, axis = 1)
-    df['is_ent'] = df.apply(lambda row: 1 if row['1_2_Label']=='ENTAILMENT' else 0, axis = 1)
+    df['is_ent'] = df.apply(lambda row: 1 if row['1_2_Label'] == 'ENTAILMENT' else 0, axis=1)
     # display(df)
-    pivot_sent = df.pivot_table(values = ['is_ent'], index = ['Type','Sample', 'Sent2_entity','Sentence2'], aggfunc = 'sum', fill_value = 0).reset_index().rename(mapper={'Sent2_entity':'summary' ,'Sentence2':'sentence'}, axis=1)
+    pivot_sent = df.pivot_table(values=['is_ent'], index=['Type', 'Sample', 'Sent2_entity', 'Sentence2'], aggfunc='sum',
+                                fill_value=0).reset_index().rename(
+        mapper={'Sent2_entity': 'summary', 'Sentence2': 'sentence'}, axis=1)
     # display(pivot_sent)
 
-    pivot_sent['is_ent'] =  pivot_sent['is_ent'].apply(lambda no_ents: 1 if no_ents>0 else -1)
+    pivot_sent['is_ent'] = pivot_sent['is_ent'].apply(lambda no_ents: 1 if no_ents > 0 else -1)
     # display(pivot_sent)
     pivot_sent.to_csv("temp.csv")
-    pivot_summ_pair = pivot_sent.pivot_table(values = ['is_ent'], index = ['Type','Sample'], aggfunc = 'mean', fill_value=0)
+    pivot_summ_pair = pivot_sent.pivot_table(values=['is_ent'], index=['Type', 'Sample'], aggfunc='mean', fill_value=0)
 
     # display(pivot_summ_pair)
 
     # display(pivot_summ_pair[pivot_summ_pair.index.isin(['ref'], level=0)])
     # df.to_csv("pivot_summ_fair.csv")
     return pivot_summ_pair[pivot_summ_pair.index.isin([summ_type], level=0)]['is_ent'].to_list()
-
 
 
 # region contrast
@@ -107,6 +113,7 @@ mapper_summ_sent = {
     '1_2_Label': 'label',
 }
 
+
 def resolve_labels(row):
     if row['fwd_label'] == row['bwd_label']:
         return row['fwd_label'].upper()
@@ -117,7 +124,8 @@ def resolve_labels(row):
         return 'NEUTRAL'
 
 
-def nli_contrast_real_neut(data_path: str, pairwise_aggregation: str = 'sum', alphas: Tuple = (1, 1, 1), summ_type='ref', run=None) -> List[float]:
+def nli_contrast_real_neut(data_path: str, pairwise_aggregation: str = 'sum', alphas: Tuple = (1, 1, 1),
+                           summ_type='ref', run=None) -> List[float]:
     alpha_ent = alphas[0]
     alpha_neut = alphas[1]
     alpha_cont = alphas[2]
@@ -187,7 +195,8 @@ def nli_contrast_real_neut(data_path: str, pairwise_aggregation: str = 'sum', al
     return scores
 
 
-def nli_contrast_bin_neut(data_path: str, pairwise_aggregation: str = 'sum', alphas: Tuple = (0, 1, 1), summ_type='ref', run=None) -> List[float]:
+def nli_contrast_bin_neut(data_path: str, pairwise_aggregation: str = 'sum', alphas: Tuple = (0, 1, 1), summ_type='ref',
+                          run=None) -> List[float]:
     alpha_ent = alphas[0]
     alpha_neut = alphas[1]
     alpha_cont = alphas[2]
@@ -259,7 +268,8 @@ def nli_contrast_bin_neut(data_path: str, pairwise_aggregation: str = 'sum', alp
     return scores
 
 
-def nli_contrast_bin_all(data_path: str, pairwise_aggregation: str = 'sum', alphas: Tuple = (0, 1, 1), summ_type='ref', run=None) -> List[float]:
+def nli_contrast_bin_all(data_path: str, pairwise_aggregation: str = 'sum', alphas: Tuple = (0, 1, 1), summ_type='ref',
+                         run=None) -> List[float]:
     alphas_dict = {
         'ENTAILMENT': (alphas[0], 'ent'),
         'NEUTRAL': (alphas[1], 'neut'),
@@ -337,7 +347,8 @@ def nli_contrast_bin_all(data_path: str, pairwise_aggregation: str = 'sum', alph
     return scores
 
 
-def nli_contrast_bin_real(data_path: str, pairwise_aggregation='sum', alphas: Tuple = (0, 1, 1), summ_type='ref', run=None) -> List[float]:
+def nli_contrast_bin_real(data_path: str, pairwise_aggregation='sum', alphas: Tuple = (0, 1, 1), summ_type='ref',
+                          run=None) -> List[float]:
     alphas_dict = {
         'ENTAILMENT': (alphas[0], 'ent'),
         'NEUTRAL': (alphas[1], 'neut'),
@@ -416,7 +427,8 @@ def nli_contrast_bin_real(data_path: str, pairwise_aggregation='sum', alphas: Tu
     return scores
 
 
-def nli_contrast_bin_all_2(data_path: str, pairwise_aggregation: str = 'sum', alphas: Tuple = (0, 1, 1), summ_type='ref', run=None) -> List[float]:
+def nli_contrast_bin_all_2(data_path: str, pairwise_aggregation: str = 'sum', alphas: Tuple = (0, 1, 1),
+                           summ_type='ref', run=None) -> List[float]:
     alphas_dict = {
         'ENTAILMENT': (alphas[0], 'ent'),
         'NEUTRAL': (alphas[1], 'neut'),
@@ -499,6 +511,7 @@ def nli_contrast_bin_all_2(data_path: str, pairwise_aggregation: str = 'sum', al
 
     print(f"Mean score = {np.mean(scores)}")
     return scores
+
 
 def nli_contrast_bin_all_summ_level(data_path: str, pairwise_aggregation: str = 'sum', alphas: Tuple = (0, 1, 1),
                                     summ_type='ref', run=None) -> List[float]:
@@ -566,7 +579,8 @@ def nli_contrast_bin_all_summ_level(data_path: str, pairwise_aggregation: str = 
     return scores
 
 
-def nli_contrast_bin_all_2_otherent(data_path: str, pairwise_aggregation: str = 'sum', alphas: Tuple = (0, 1, 1), summ_type='ref', run=None) -> List[float]:
+def nli_contrast_bin_all_2_otherent(data_path: str, pairwise_aggregation: str = 'sum', alphas: Tuple = (0, 1, 1),
+                                    summ_type='ref', run=None) -> List[float]:
     alphas_dict = {
         'ENTAILMENT': (alphas[0], 'ent'),
         'NEUTRAL': (alphas[1], 'neut'),
@@ -651,7 +665,8 @@ def nli_contrast_bin_all_2_otherent(data_path: str, pairwise_aggregation: str = 
     return scores
 
 
-def nli_contrast_bin_all_3(data_path: str, pairwise_aggregation: str = 'sum', alphas: Tuple = (0, 1, 1), summ_type='ref', run=None) -> List[float]:
+def nli_contrast_bin_all_3(data_path: str, pairwise_aggregation: str = 'sum', alphas: Tuple = (0, 1, 1),
+                           summ_type='ref', run=None) -> List[float]:
     alphas_dict = {
         'ENTAILMENT': (alphas[0], 'ent'),
         'NEUTRAL': (alphas[1], 'neut'),
@@ -693,7 +708,8 @@ def nli_contrast_bin_all_3(data_path: str, pairwise_aggregation: str = 'sum', al
     pivot_sent['score'] = pivot_sent.apply(
         lambda row:
         alphas_dict['NEUTRAL'][0] if row['NEUTRAL'] == 1.0 else (
-            alphas_dict['CONTRADICTION'][0] if row['CONTRADICTION'] >= row['ENTAILMENT'] else alphas_dict['ENTAILMENT'][0]
+            alphas_dict['CONTRADICTION'][0] if row['CONTRADICTION'] >= row['ENTAILMENT'] else alphas_dict['ENTAILMENT'][
+                0]
         ), axis=1
     )
     # log the df to wandb
@@ -736,7 +752,8 @@ def nli_contrast_bin_all_3(data_path: str, pairwise_aggregation: str = 'sum', al
     return scores
 
 
-def nli_contrast_bin_all_3_otherent(data_path: str, pairwise_aggregation: str = 'sum', alphas: Tuple = (0, 1, 1), summ_type='ref', run=None) -> List[float]:
+def nli_contrast_bin_all_3_otherent(data_path: str, pairwise_aggregation: str = 'sum', alphas: Tuple = (0, 1, 1),
+                                    summ_type='ref', run=None) -> List[float]:
     alphas_dict = {
         'ENTAILMENT': (alphas[0], 'ent'),
         'NEUTRAL': (alphas[1], 'neut'),
@@ -778,7 +795,8 @@ def nli_contrast_bin_all_3_otherent(data_path: str, pairwise_aggregation: str = 
     pivot_sent['score'] = pivot_sent.apply(
         lambda row:
         alphas_dict['NEUTRAL'][0] if row['NEUTRAL'] == 1.0 else (
-            alphas_dict['CONTRADICTION'][0] if row['CONTRADICTION'] >= row['ENTAILMENT'] else alphas_dict['ENTAILMENT'][0]
+            alphas_dict['CONTRADICTION'][0] if row['CONTRADICTION'] >= row['ENTAILMENT'] else alphas_dict['ENTAILMENT'][
+                0]
         ), axis=1
     )
     # log the df to wandb
@@ -820,4 +838,91 @@ def nli_contrast_bin_all_3_otherent(data_path: str, pairwise_aggregation: str = 
     print(f"Mean score = {np.mean(scores)}")
     return scores
 
+
+def nli_contrast_bin_all_3_pair(data_path: str, pairwise_aggregation: str = 'sum', alphas: Tuple = (0, 1, 1),
+                                summ_type='ref', run=None) -> List[float]:
+    alphas_dict = {
+        'ENTAILMENT': (alphas[0], 'ent'),
+        'NEUTRAL': (alphas[1], 'neut'),
+        'CONTRADICTION': (alphas[2], 'cont'),
+    }
+
+    # transform df to sent level instead of comparison level
+    df1 = pd.read_csv(data_path)
+    df2 = df1.copy(deep=True)
+    print(f"Length of initial dataframe = {len(df1)}")
+    df1 = df1.rename(mapper=mapper_sent1, axis=1)
+    df2 = df2.rename(mapper=mapper_sent2, axis=1)
+    df = pd.concat([df1, df2])
+    df = df[(df['sent_entity'] != 'comm') & (df['other_entity'] != 'comm')]
+    print(f"Length of sent level df = {len(df)}")
+
+    for label in ['cont', 'ent', 'neut']:
+        if pairwise_aggregation == 'sum':
+            df[f'agg_{label}'] = (df[f'fwd_{label}'] + df[f'bwd_{label}']) / 2
+        else:
+            df[f'agg_ent'] = np.maximum(df[f'fwd_ent'], df[f'bwd_ent'])
+            df[f'agg_neut'] = (df[f'fwd_neut'] + df[f'bwd_neut']) / 2
+            df[f'agg_cont'] = np.maximum(df[f'fwd_cont'], df[f'bwd_cont'])
+
+    df['resolved_label'] = df.apply(resolve_labels, axis=1)
+    for label in alphas_dict:
+        df[label] = df['resolved_label'].apply(lambda pair_label: 1 if pair_label == label else 0)
+    # log the df to wandb
+    table = wandb.Table(dataframe=df)
+    run.log({'contrast_sent_level_label_score': table})
+
+    pivot_sent = df.pivot_table(
+        values=['fwd_ent', 'fwd_neut', 'fwd_cont', 'bwd_ent', 'bwd_neut', 'bwd_cont', 'agg_ent', 'agg_neut',
+                'agg_cont'] + [label for label in alphas_dict],
+        index=['Type', 'Sample', 'sent_entity', 'sentence'],
+        aggfunc='mean',
+        fill_value=0
+    ).reset_index()
+    print(f"Length of pivot_sent = {len(pivot_sent)}")
+    pivot_sent['score'] = pivot_sent.apply(
+        lambda row:
+        alphas_dict['NEUTRAL'][0] if row['NEUTRAL'] == 1.0 else (
+            alphas_dict['CONTRADICTION'][0] if row['CONTRADICTION'] >= row['ENTAILMENT'] else alphas_dict['ENTAILMENT'][
+                0]
+        ), axis=1
+    )
+    # log the df to wandb
+    table = wandb.Table(dataframe=pivot_sent)
+    run.log({'contrast_sent_level_label_score': table})
+
+    pivot_summ = pivot_sent.pivot_table(
+        values=['score', 'sentence'],
+        index=['Type', 'Sample', 'sent_entity'],
+        aggfunc={
+            'score': ['mean', 'sum'],
+            'sentence': ['count'],
+        },
+        fill_value=0
+    )
+    pivot_summ.columns = list(map("_".join, pivot_summ.columns))
+    print(f"Length of pivot_summ = {len(pivot_summ)}")
+    # log the df to wandb
+    table = wandb.Table(dataframe=pivot_summ.reset_index())
+    run.log({'contrast_summ_level_label_score': table})
+
+    pivot_sample = pivot_sent.pivot_table(
+        values=['score', 'sentence'],
+        index=['Type', 'Sample'],
+        aggfunc={
+            'score': ['mean', 'sum'],
+            'sentence': ['count'],
+        },
+        fill_value=0
+    )
+    pivot_sample.columns = list(map("_".join, pivot_sample.columns))
+    print(f"Length of pivot_sample = {len(pivot_sample)}")
+    # log the df to wandb
+    table = wandb.Table(dataframe=pivot_sample.reset_index())
+    run.log({'contrast_sample_level_label_score': table})
+
+    scores = pivot_sample[pivot_sample.index.isin([summ_type], level=0)]['score_mean'].to_list()
+
+    print(f"Mean score = {np.mean(scores)}")
+    return scores
 # endregion contrast

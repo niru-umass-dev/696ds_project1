@@ -23,6 +23,8 @@ python3 src/experiments.py -r aggregation-change-03-both -n "Rerunning everythin
 
 python3 src/experiments.py -r negation-all-examples-01 -n "Exapnded negation experiment to 48 examples"
 
+python3 src/experiments.py -r only-contrastive-01 -n "Rerunning all experiments with only 2 contrastive summaries"
+
 
 rm -rf data/results/sentpairs_nli_*
 rm -rf data/results/nli_contrast_*
