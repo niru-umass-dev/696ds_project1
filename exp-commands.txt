@@ -25,6 +25,8 @@ python3 src/experiments.py -r negation-all-examples-01 -n "Exapnded negation exp
 
 python3 src/experiments.py -r only-contrastive-01 -n "Rerunning all experiments with only 2 contrastive summaries"
 
+python3 src/experiments.py -r agg-final-01-biascont-aggsumm -n "Aggregation Combo 1 - Contradiction Bias and Summary-Wise Conditions."
+
 
 rm -rf data/results/sentpairs_nli_*
 rm -rf data/results/nli_contrast_*
