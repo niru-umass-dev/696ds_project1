@@ -32,6 +32,10 @@ python3 src/experiments.py -r agg-final-02-biascont-aggsum -n "Aggregation Combo
 python3 src/experiments.py -r agg-final-03-biasnone-aggall -n "Aggregation Combo 3 - No Bias and AllSent Conditions."
 "Aggregation Combo 3 - No Bias and AllSent Conditions. run_name = agg-final-03-biasnone-aggall"
 
+python3 src/experiments.py -r agg-final-04-biasnone-aggsum -n "Aggregation Combo 4 - No Bias and Summary-wise Conditions."
+"Aggregation Combo 4 - No Bias and Summary-wise Conditions. run_name = agg-final-04-biasnone-aggsum"
+
+
 
 rm -rf data/results/sentpairs_nli_*
 rm -rf data/results/nli_contrast_*
