@@ -16,7 +16,7 @@ class SummNLI:
                  summ_sent: bool = False, factuality: bool = False, negation: bool = False):
 
         # ROBERTA-LARGE-MNLI
-        self.pipe = pipeline("text-classification", model='roberta-large-mnli', return_all_scores=True, device= 0 if torch.cuda.is_available() else 'cpu')
+        self.pipe = pipeline("text-classification", model='roberta-large-mnli', return_all_scores=True, device= 'cuda' if torch.cuda.is_available() else 'cpu')
         self.label_mapping = ['contradiction', 'neutral', 'entailment']
 
         # ROBERTA-LARGE-SNLI-MNLI-FEVER-ANLI...
