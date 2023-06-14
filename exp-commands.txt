@@ -27,6 +27,8 @@ python3 src/experiments.py -r only-contrastive-01 -n "Rerunning all experiments 
 
 python3 src/experiments.py -r agg-final-01-biascont-aggall -n "Aggregation Combo 1 - Contradiction Bias and AllSent Conditions."
 
+python3 src/experiments.py -r agg-final-02-biascont-aggsum -n "Aggregation Combo 2 - Contradiction Bias and Summary-wise Conditions."
+
 
 rm -rf data/results/sentpairs_nli_*
 rm -rf data/results/nli_contrast_*
