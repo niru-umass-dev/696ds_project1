@@ -29,6 +29,9 @@ python3 src/experiments.py -r agg-final-01-biascont-aggall -n "Aggregation Combo
 
 python3 src/experiments.py -r agg-final-02-biascont-aggsum -n "Aggregation Combo 2 - Contradiction Bias and Summary-wise Conditions."
 
+python3 src/experiments.py -r agg-final-03-biasnone-aggall -n "Aggregation Combo 3 - No Bias and AllSent Conditions."
+"Aggregation Combo 3 - No Bias and AllSent Conditions. run_name = agg-final-03-biasnone-aggall"
+
 
 rm -rf data/results/sentpairs_nli_*
 rm -rf data/results/nli_contrast_*

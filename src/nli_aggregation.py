@@ -18,8 +18,8 @@ def get_nli_scores(data_type, component, summ_type, alphas=(0, 0, 0), run=None):
         # nli_scores = nli_contrast_bin_all_2(data_path=data_path,pairwise_aggregation='sum',alphas=(alpha_ent,alpha_neut,alpha_cont), summ_type=summ_type, run=run)
         # nli_scores = nli_contrast_bin_real(data_path=data_path,pairwise_aggregation='mixed',alphas=(alpha_ent,alpha_neut,alpha_cont), summ_type=summ_type, run=run)
         # nli_scores = nli_contrast_bin_all_summ_level(data_path=data_path,pairwise_aggregation='sum',alphas=(alpha_ent,alpha_neut,alpha_cont), summ_type=summ_type, run=run)
-        nli_scores = nli_contrast_bin_all_2_otherent(data_path=data_path, pairwise_aggregation='sum',alphas=(alpha_ent, alpha_neut, alpha_cont), summ_type=summ_type, run=run)
-        # nli_scores = nli_contrast_bin_all_3(data_path=data_path, pairwise_aggregation='sum',alphas=(alpha_ent, alpha_neut, alpha_cont), summ_type=summ_type, run=run)
+        # nli_scores = nli_contrast_bin_all_2_otherent(data_path=data_path, pairwise_aggregation='sum',alphas=(alpha_ent, alpha_neut, alpha_cont), summ_type=summ_type, run=run)
+        nli_scores = nli_contrast_bin_all_3(data_path=data_path, pairwise_aggregation='sum',alphas=(alpha_ent, alpha_neut, alpha_cont), summ_type=summ_type, run=run)
         # nli_scores = nli_contrast_bin_all_3_otherent(data_path=data_path, pairwise_aggregation='sum',alphas=(alpha_ent, alpha_neut, alpha_cont), summ_type=summ_type, run=run)
         # nli_scores = nli_contrast_bin_all_3_pair(data_path=data_path, pairwise_aggregation='sum',
         #                                          alphas=(alpha_ent, alpha_neut, alpha_cont), summ_type=summ_type,
