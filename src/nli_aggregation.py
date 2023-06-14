@@ -15,15 +15,15 @@ def get_nli_scores(data_type, component, summ_type, alphas=(0, 0, 0), run=None):
         # nli_scores = nli_contrast_real_neut(data_path=data_path,pairwise_aggregation='sum',alphas=(alpha_ent,alpha_neut,alpha_cont), summ_type=summ_type, run=run)
         # nli_scores = nli_contrast_bin_neut(data_path=data_path,pairwise_aggregation='sum',alphas=(alpha_ent,alpha_neut,alpha_cont), summ_type=summ_type, run=run)
         # nli_scores = nli_contrast_bin_all(data_path=data_path,pairwise_aggregation='sum',alphas=(alpha_ent,alpha_neut,alpha_cont), summ_type=summ_type, run=run)
-        # nli_scores = nli_contrast_bin_all_2(data_path=data_path,pairwise_aggregation='sum',alphas=(alpha_ent,alpha_neut,alpha_cont), summ_type=summ_type, run=run)
+        nli_scores = nli_contrast_bin_all_2(data_path=data_path,pairwise_aggregation='sum',alphas=(alpha_ent,alpha_neut,alpha_cont), summ_type=summ_type, run=run)
         # nli_scores = nli_contrast_bin_real(data_path=data_path,pairwise_aggregation='mixed',alphas=(alpha_ent,alpha_neut,alpha_cont), summ_type=summ_type, run=run)
         # nli_scores = nli_contrast_bin_all_summ_level(data_path=data_path,pairwise_aggregation='sum',alphas=(alpha_ent,alpha_neut,alpha_cont), summ_type=summ_type, run=run)
         # nli_scores = nli_contrast_bin_all_2_otherent(data_path=data_path, pairwise_aggregation='sum',alphas=(alpha_ent, alpha_neut, alpha_cont), summ_type=summ_type, run=run)
         # nli_scores = nli_contrast_bin_all_3(data_path=data_path, pairwise_aggregation='sum',alphas=(alpha_ent, alpha_neut, alpha_cont), summ_type=summ_type, run=run)
         # nli_scores = nli_contrast_bin_all_3_otherent(data_path=data_path, pairwise_aggregation='sum',alphas=(alpha_ent, alpha_neut, alpha_cont), summ_type=summ_type, run=run)
-        nli_scores = nli_contrast_bin_all_3_pair(data_path=data_path, pairwise_aggregation='sum',
-                                                 alphas=(alpha_ent, alpha_neut, alpha_cont), summ_type=summ_type,
-                                                 run=run)
+        # nli_scores = nli_contrast_bin_all_3_pair(data_path=data_path, pairwise_aggregation='sum',
+        #                                          alphas=(alpha_ent, alpha_neut, alpha_cont), summ_type=summ_type,
+        #                                          run=run)
 
     elif component == 'factuality':
         nli_scores = nli_fact_bin_ent(data_path=data_path, summ_type=summ_type)
@@ -46,8 +46,8 @@ def get_nli_scores(data_type, component, summ_type, alphas=(0, 0, 0), run=None):
             summ_b = example['refs_b'][0] if summ_type == 'ref' else example['gen_b']
             summ_comm = example['refs_comm'][0] if summ_type == 'ref' else example['gen_comm']
             nli_score_idx = example_id if summ_type == 'ref' else (example_id - 20)
-            # records.append((summ_type, split, example_id, summ_a, summ_b, summ_comm, nli_scores[nli_score_idx]))
-            records.append((summ_type, split, example_id, summ_a, summ_b, nli_scores[nli_score_idx]))
+            records.append((summ_type, split, example_id, summ_a, summ_b, summ_comm, nli_scores[nli_score_idx]))
+            # records.append((summ_type, split, example_id, summ_a, summ_b, nli_scores[nli_score_idx]))
     return records
 
 
