@@ -5,7 +5,7 @@ import wandb
 import numpy as np
 
 
-def get_nli_scores(data_type, component, summ_type, alphas=(0, 0, 0), run=None):
+def get_nli_scores(data_type, component, summ_type, compute = 'triple', alphas=(0, 0, 0), run=None):
     data_path = f"data/results/sentpairs_nli_{component}_{summ_type}_{data_type}.csv"
 
     if component == 'contrast':
@@ -20,7 +20,7 @@ def get_nli_scores(data_type, component, summ_type, alphas=(0, 0, 0), run=None):
             alphas=(alpha_ent,alpha_neut,alpha_cont),
             summ_type=summ_type,
             run=run,
-            compute = 'triple',
+            compute = compute,
             tie_winner = 'CONTRADICTION'
         )
         
@@ -45,8 +45,10 @@ def get_nli_scores(data_type, component, summ_type, alphas=(0, 0, 0), run=None):
             summ_b = example['refs_b'][0] if summ_type == 'ref' else example['gen_b']
             summ_comm = example['refs_comm'][0] if summ_type == 'ref' else example['gen_comm']
             nli_score_idx = example_id if summ_type == 'ref' else (example_id - 20)
-            records.append((summ_type, split, example_id, summ_a, summ_b, summ_comm, nli_scores[nli_score_idx]))
-            # records.append((summ_type, split, example_id, summ_a, summ_b, nli_scores[nli_score_idx]))
+            if compute == 'triple':
+                records.append((summ_type, split, example_id, summ_a, summ_b, summ_comm, nli_scores[nli_score_idx]))
+            else:
+                records.append((summ_type, split, example_id, summ_a, summ_b, nli_scores[nli_score_idx]))
     return records
 
 
