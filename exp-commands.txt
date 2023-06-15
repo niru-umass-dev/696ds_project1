@@ -47,8 +47,11 @@ python3 src/experiments.py -r rewrite-agg-code -n "Clean up agg code. Remove unu
 python3 src/experiments.py -r agg-two-summ-01-prefcont -n "Two Summ Aggregation Combo 1 - Contradiction Preference"
 "Two Summ Aggregation Combo 1 - Contradiction Preference. run_name = agg-two-summ-01-prefcont"
 
-python3 src/experiments.py -r agg-two-summ-02-prefent -n "Two Summ Aggregation Combo 1 - Entailment Preference"
+python3 src/experiments.py -r agg-two-summ-02-prefent -n "Two Summ Aggregation Combo 2 - Entailment Preference"
 "Two Summ Aggregation Combo 2 - Entailment Preference. run_name = agg-two-summ-02-prefent"
+
+python3 src/experiments.py -r agg-two-summ-03-prefnone-biascont -n "Two Summ Aggregation Combo 3 - No Preference - Contradiction Bias"
+"Two Summ Aggregation Combo 3 - No Preference - Contradiction Bias. run_name = agg-two-summ-03-prefnone-biascont"
 
 
 

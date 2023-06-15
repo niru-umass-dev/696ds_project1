@@ -15,7 +15,7 @@ def get_nli_scores(data_type, component, summ_type, compute = 'triple', alphas=(
         
         nli_scores = nli_aggregator(
             data_path=data_path,
-            preferred_label = 'ENTAILMENT',
+            preferred_label = 'none',
             pairwise_aggregation='sum',
             alphas=(alpha_ent,alpha_neut,alpha_cont),
             summ_type=summ_type,
