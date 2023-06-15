@@ -53,6 +53,8 @@ python3 src/experiments.py -r agg-two-summ-02-prefent -n "Two Summ Aggregation C
 python3 src/experiments.py -r agg-two-summ-03-prefnone-biascont -n "Two Summ Aggregation Combo 3 - No Preference - Contradiction Bias"
 "Two Summ Aggregation Combo 3 - No Preference - Contradiction Bias. run_name = agg-two-summ-03-prefnone-biascont"
 
+python3 src/experiments.py -r agg-two-summ-04-prefnone-biasent -n "Two Summ Aggregation Combo 4 - No Preference - Entailment Bias"
+"Two Summ Aggregation Combo 4 - No Preference - Entailment Bias. run_name = agg-two-summ-04-prefnone-biasent"
 
 
 

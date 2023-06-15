@@ -21,7 +21,7 @@ def get_nli_scores(data_type, component, summ_type, compute = 'triple', alphas=(
             summ_type=summ_type,
             run=run,
             compute = compute,
-            tie_winner = 'CONTRADICTION'
+            tie_winner = 'ENTAILMENT'
         )
         
     elif component == 'factuality':
