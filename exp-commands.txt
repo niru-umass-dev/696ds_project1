@@ -42,7 +42,7 @@ python3 src/experiments.py -r agg-two-summ-01-biascont -n "Two Summ Aggregation 
 "Two Summ Aggregation Combo 1 - Contradiction Bias. run_name = agg-two-summ-01-biascont"
 
 python3 src/experiments.py -r rewrite-agg-code -n "Clean up agg code. Remove unused functions. Combined multiple needed funcs into one nli_aggregator function which changes execution based on parameters."
-"Clean up agg code. Remove unused functions. Combined multiple needed funcs into one nli_aggregator function which changes execution based on parameters. If you clean up base files and run the results should match commit de1636dd7d6747a1bb852340bd9d4c2ac0cd54d6"
+"Clean up agg code. Remove unused functions. Combined multiple needed funcs into one nli_aggregator function which changes execution based on parameters. If you clean up base files and run experiments.py the results should match commit de1636dd7d6747a1bb852340bd9d4c2ac0cd54d6"
 
 
 
