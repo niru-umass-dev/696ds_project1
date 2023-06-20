@@ -1,5 +1,5 @@
 ### Sentence Splitter Class
-from src.prompt import SPLIT_PROMPT, SYSTEM_PROMPT, USER_PROMPT
+from src.sentence_split_prompt import SPLIT_PROMPT, SYSTEM_PROMPT, USER_PROMPT
 import nltk
 import openai
 import string
@@ -54,7 +54,7 @@ class SentenceSplitter:
 
 import os
 import openai
-from src.prompt import SPLIT_PROMPT
+from src.sentence_split_prompt import SPLIT_PROMPT
 import json
 from transformers import GPT2TokenizerFast
 import nltk
@@ -212,13 +212,24 @@ def get_indexed_simple_sent_dataset(source_dataset, temp_folder_prefix=""):
 # source reviews are the same across all datasets (base, paraphrase, selfparaphrase) but in 
 # similarity the source review sets of both entities are the same
 
-original_dataset = json.load(open("data/combined_data_selfparaphrase.json", 'r'))
+# original_dataset = json.load(open("data/combined_data_selfparaphrase.json", 'r'))
+
+# sent_indexed_dataset = get_sent_indexed_dataset(original_dataset)
+# json.dump(sent_indexed_dataset, open("data/temporary_dataset_files/selfparaphrase_sent_level/sent_indexed_dataset.json", "w"))
+
+# indexed_split_sent_dataset = get_indexed_simple_sent_dataset(sent_indexed_dataset, temp_folder_prefix="selfparaphrase_sent_level/")
+# json.dump(indexed_split_sent_dataset, open("data/temporary_dataset_files/selfparaphrase_sent_level/indexed_split_sent_dataset.json", "w"))
+
+# paragraph_split_sent_dataset = get_paragraph_simple_sent_dataset(indexed_split_sent_dataset)
+# json.dump(paragraph_split_sent_dataset, open("data/combined_data_selfparaphrase_split_complete.json", "w"))
+
+original_dataset = json.load(open("data/combined_data_paraphrase_synonyms.json", 'r'))
 
 sent_indexed_dataset = get_sent_indexed_dataset(original_dataset)
-json.dump(sent_indexed_dataset, open("data/temporary_dataset_files/selfparaphrase_sent_level/sent_indexed_dataset.json", "w"))
+json.dump(sent_indexed_dataset, open("data/temporary_dataset_files/paraphrase_synonyms/sent_indexed_dataset.json", "w"))
 
-indexed_split_sent_dataset = get_indexed_simple_sent_dataset(sent_indexed_dataset, temp_folder_prefix="selfparaphrase_sent_level/")
-json.dump(indexed_split_sent_dataset, open("data/temporary_dataset_files/selfparaphrase_sent_level/indexed_split_sent_dataset.json", "w"))
+indexed_split_sent_dataset = get_indexed_simple_sent_dataset(sent_indexed_dataset[26:], temp_folder_prefix="paraphrase_synonyms/")
+json.dump(indexed_split_sent_dataset, open("data/temporary_dataset_files/paraphrase_synonyms/indexed_split_sent_dataset.json", "w"))
 
 paragraph_split_sent_dataset = get_paragraph_simple_sent_dataset(indexed_split_sent_dataset)
-json.dump(paragraph_split_sent_dataset, open("data/combined_data_selfparaphrase_split_complete.json", "w"))
+json.dump(paragraph_split_sent_dataset, open("data/combined_data_paraphrase_synonyms_split_complete.json", "w"))
