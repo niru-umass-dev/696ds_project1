@@ -49,7 +49,7 @@ args = parser.parse_args()
 summ_orig = ['ref'] # ["ref", "gen"]
 metrics = ['ds', 'bs', 'nli']
 nli_components = ["contrast", "factuality"]
-all_datasets = ['base', 'paraphrase', 'negation', 'similarity', 'selfparaphrase', 'paraphrase_a', 'paraphrase_b']
+all_datasets = ['base', 'paraphrase', 'negation', 'similarity', 'selfparaphrase', 'paraphrase_a', 'paraphrase_b', 'paraphrase_synonyms']
 experiments = {
     "paraphrase": {
         "paraphrase_model": "text-davinci-003",
@@ -291,7 +291,7 @@ for summ_type in summ_orig:
                 
 # EXPERIMENT 2: PARAPHRASING RESULTS
 experiment_name = 'paraphrase'
-experiment_datasets = ['base', 'paraphrase', 'paraphrase_a', 'paraphrase_b']
+experiment_datasets = ['base', 'paraphrase', 'paraphrase_a', 'paraphrase_b', 'paraphrase_synonyms']
 headers = []
 for summ_type in summ_orig:
     records = []

@@ -59,6 +59,9 @@ python3 src/experiments.py -r agg-two-summ-04-prefnone-biasent -n "Two Summ Aggr
 python3 src/experiments.py -r paraphrase_x-01 -n "Added the paraphrase_x experiment where only one summary is paraphrased. Aggregation is agg-two-summ-04-prefnone-biasent"
 "Now running the paraphrase_x experiment, where only one summary is paraphrased. Aggregation is agg-two-summ-04-prefnone-biasent (same as before)"
 
+python3 src/experiments.py -r paraphrase-synonyms-01 -n "Ran the paraphrase_synonyms experiment with text-davinci-003, temp=1.0, and synonyms_prompt.py. Aggregation is agg-two-summ-04-prefnone-biasent"
+"Ran the paraphrase_synonyms experiment with text-davinci-003, temp=1.0, and synonyms_prompt.py. Aggregation is agg-two-summ-04-prefnone-biasent. Aggregation is agg-two-summ-04-prefnone-biasent (same as before)"
+
 
 
 
