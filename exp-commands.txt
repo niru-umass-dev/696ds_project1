@@ -56,6 +56,9 @@ python3 src/experiments.py -r agg-two-summ-03-prefnone-biascont -n "Two Summ Agg
 python3 src/experiments.py -r agg-two-summ-04-prefnone-biasent -n "Two Summ Aggregation Combo 4 - No Preference - Entailment Bias"
 "Two Summ Aggregation Combo 4 - No Preference - Entailment Bias. run_name = agg-two-summ-04-prefnone-biasent"
 
+python3 src/experiments.py -r paraphrase_x-01 -n "Added the paraphrase_x experiment where only one summary is paraphrased. Aggregation is agg-two-summ-04-prefnone-biasent"
+"Now running the paraphrase_x experiment, where only one summary is paraphrased. Aggregation is agg-two-summ-04-prefnone-biasent (same as before)"
+
 
 
 
