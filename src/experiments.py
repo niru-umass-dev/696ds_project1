@@ -49,7 +49,8 @@ args = parser.parse_args()
 summ_orig = ['ref'] # ["ref", "gen"]
 metrics = ['ds', 'bs', 'nli']
 nli_components = ["contrast", "factuality"]
-all_datasets = ['base', 'paraphrase', 'negation', 'similarity', 'selfparaphrase', 'paraphrase_a', 'paraphrase_b', 'paraphrase_synonyms']
+# all_datasets = ['base', 'paraphrase', 'negation', 'similarity', 'selfparaphrase', 'paraphrase_a', 'paraphrase_b', 'paraphrase_synonyms']
+all_datasets = ['base', 'paraphrase', 'negation', 'similarity', 'selfparaphrase','paraphrase_b']
 experiments = {
     "paraphrase": {
         "paraphrase_model": "text-davinci-003",
@@ -118,7 +119,7 @@ if 'paraphrase' in experiments and not os.path.isfile("data/combined_data_paraph
 # Generate Sentence-Pair Level NLI Scores if the files don't exist
 for dataset in all_datasets:
     for summ_type in summ_orig:
-        data_path = f"data/combined_data_{dataset}_split_complete.json"
+        data_path = f"data/sents_data_{dataset}.json"
         
         file_path = f"data/results/sentpairs_nli_contrast_{summ_type}_{dataset}.csv"
         if not os.path.isfile(file_path):
@@ -154,7 +155,7 @@ label_alpha_combs = {
 
 for summ_type in summ_orig:
     for dataset in all_datasets:
-        data_path = f"data/combined_data_{dataset}_split_complete.json"
+        data_path = f"data/sents_data_{dataset}.json"
         # data_path = f"data/combined_data_{dataset}.json"
         data = json.load(open(data_path,'r'))
         for metric in metrics: 
@@ -291,7 +292,7 @@ for summ_type in summ_orig:
                 
 # EXPERIMENT 2: PARAPHRASING RESULTS
 experiment_name = 'paraphrase'
-experiment_datasets = ['base', 'paraphrase', 'paraphrase_a', 'paraphrase_b', 'paraphrase_synonyms']
+experiment_datasets = ['base', 'paraphrase', 'paraphrase_b']
 headers = []
 for summ_type in summ_orig:
     records = []

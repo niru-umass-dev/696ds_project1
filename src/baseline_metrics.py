@@ -102,9 +102,9 @@ def get_ds_scores(combined_data: List[Dict], summ_type, evaluator, compute, nega
         if summ_type == 'gen':
             cont_a, cont_b, cont_comm = example['gen_a'], example['gen_b'], example['gen_comm']
         if summ_type == 'ref':
-            cont_a, cont_b, cont_comm = example['refs_a'][0], example['refs_b'][0], example['refs_comm'][0]
+            cont_a, cont_b, cont_comm = " ".join(example['refs_a'][0]), " ".join(example['refs_b'][0]), " ".join(example['refs_comm'][0])
         if negation == True:
-            cont_a, cont_b = example['refs_a'][0], example['refs_a_neg']
+            cont_a, cont_b = " ".join(example['refs_a'][0]), " ".join(example['refs_b'][0])
 
         if compute == "pair":
             example_ds_score = calc_ds_pair(cont_a, cont_b, evaluator)
@@ -127,9 +127,9 @@ def get_bs_scores(combined_data: List[Dict], summ_type, scorer, compute, negatio
         if summ_type == 'gen':
             cont_a, cont_b, cont_comm = example['gen_a'], example['gen_b'], example['gen_comm']
         if summ_type == 'ref':
-            cont_a, cont_b, cont_comm = example['refs_a'][0], example['refs_b'][0], example['refs_comm'][0]
+            cont_a, cont_b, cont_comm = " ".join(example['refs_a'][0]), " ".join(example['refs_b'][0]), " ".join(example['refs_comm'][0])
         if negation == True:
-            cont_a, cont_b = example['refs_a'][0], example['refs_a_neg']
+            cont_a, cont_b = " ".join(example['refs_a'][0]), " ".join(example['refs_b'][0])
 
         if compute == "pair":
             example_bs_score = calc_bs_pair(cont_a, cont_b, scorer)

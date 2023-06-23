@@ -53,9 +53,9 @@ class SummNLI:
 
                 for d in range(len(data)):
                     # ref summaries just first reference
-                    ref_a_sum = nltk.sent_tokenize(data[d]['refs_a'][0])
-                    ref_b_sum = nltk.sent_tokenize(data[d]['refs_b'][0])
-                    ref_comm_sum = nltk.sent_tokenize(data[d]['refs_comm'][0])
+                    ref_a_sum = data[d]['refs_a'][0]
+                    ref_b_sum = data[d]['refs_b'][0]
+                    ref_comm_sum = data[d]['refs_comm'][0]
 
                     # ref aggregations
                     ref_sent_p1, ref_sent_p2, ref_sent1_ent, ref_sent2_ent, ref_count = self.summ_sent_cont_helper(
@@ -81,9 +81,9 @@ class SummNLI:
 
                 for d in range(20, len(data)):
                     # gen summaries
-                    gen_a_sum = nltk.sent_tokenize(data[d]['gen_a'])
-                    gen_b_sum = nltk.sent_tokenize(data[d]['gen_b'])
-                    gen_comm_sum = nltk.sent_tokenize(data[d]['gen_comm'])
+                    gen_a_sum = data[d]['gen_a']
+                    gen_b_sum = data[d]['gen_b']
+                    gen_comm_sum = data[d]['gen_comm']
 
                     # gen aggregations
                     gen_sent_p1, gen_sent_p2, gen_sent1_ent, gen_sent2_ent, gen_count = self.summ_sent_cont_helper(
@@ -141,8 +141,8 @@ class SummNLI:
                 if self.negation == True:
                     for d in range(len(data)):
                         # ref summaries just first reference
-                        ref_a_sum = nltk.sent_tokenize(data[d]['refs_a'][0])
-                        ref_a_sum_neg = nltk.sent_tokenize(data[d]['refs_a_neg'])
+                        ref_a_sum = data[d]['refs_a'][0]
+                        ref_a_sum_neg = data[d]['refs_b'][0]
 
                         # ref aggregations
                         ref_sent_p1, ref_sent_p2, ref_sent1_ent, ref_sent2_ent, ref_count = self.cont_helper(ref_a_sum,
@@ -172,9 +172,9 @@ class SummNLI:
                 else:
                     for d in range(len(data)):
                         # ref summaries just first reference
-                        ref_a_sum = nltk.sent_tokenize(data[d]['refs_a'][0])
-                        ref_b_sum = nltk.sent_tokenize(data[d]['refs_b'][0])
-                        ref_comm_sum = nltk.sent_tokenize(data[d]['refs_comm'][0])
+                        ref_a_sum = data[d]['refs_a'][0]
+                        ref_b_sum = data[d]['refs_b'][0]
+                        ref_comm_sum = data[d]['refs_comm'][0]
 
                         # ref aggregations
                         ref_sent_p1, ref_sent_p2, ref_sent1_ent, ref_sent2_ent, ref_count = self.cont_helper(ref_a_sum,
@@ -307,9 +307,9 @@ class SummNLI:
                         source_b = data[d]['source_reviews_b']
 
                         # ref summaries just first reference
-                        ref_a_sum = nltk.sent_tokenize(data[d]['refs_a'][0])
-                        ref_b_sum = nltk.sent_tokenize(data[d]['refs_b'][0])
-                        ref_comm_sum = nltk.sent_tokenize(data[d]['refs_comm'][0])
+                        ref_a_sum = data[d]['refs_a'][0]
+                        ref_b_sum = data[d]['refs_b'][0]
+                        ref_comm_sum = data[d]['refs_comm'][0]
 
                         # ref aggregations
                         ref_sent_p1, ref_sent_p2, ref_sent1_source, ref_sent1_source_ent, ref_sent2_ent, ref_count = self.source_sent_fact_helper(
@@ -402,9 +402,9 @@ class SummNLI:
                         source_b = [nltk.sent_tokenize(i) for i in data[d]['source_reviews_b']]
 
                         # ref summaries just first reference
-                        ref_a_sum = nltk.sent_tokenize(data[d]['refs_a'][0])
-                        ref_b_sum = nltk.sent_tokenize(data[d]['refs_b'][0])
-                        ref_comm_sum = nltk.sent_tokenize(data[d]['refs_comm'][0])
+                        ref_a_sum = data[d]['refs_a'][0]
+                        ref_b_sum = data[d]['refs_b'][0]
+                        ref_comm_sum = data[d]['refs_comm'][0]
 
                         # ref aggregations
                         ref_sent_p1, ref_sent_p2, ref_sent1_source, ref_sent1_source_ent, ref_sent2_ent, ref_count = self.fact_helper(
