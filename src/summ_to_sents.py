@@ -11,6 +11,7 @@ for dataset_name in all_datasets:
     for example in dataset:
         example['refs_a'] = [nltk.sent_tokenize(example['refs_a'][0])]
         example['refs_b'] = [nltk.sent_tokenize(example['refs_b'][0])]
+        example['refs_comm'] = [nltk.sent_tokenize(example['refs_comm'][0])]
         new_dataset.append(example)
     output_path = f"data/sents_data_{dataset_name}.json"
     json.dump(new_dataset, open(output_path, 'w'))
