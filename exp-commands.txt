@@ -65,6 +65,8 @@ python3 src/experiments.py -r paraphrase-synonyms-01 -n "Ran the paraphrase_syno
 python3 src/experiments.py -r complex-sent-level-01 -n "Rerunning everything with complex sents."
 "Changed code to handle summaries as lists of complex sents. Rerunning everything with complex sents."
 
+python3 src/experiments.py -r final-01 -n "Rerunning with split sentences, but fixed bug where DS and BS are computed on split_sent summaries"
+"fixed bug where DS and BS are computed on split_sent summaries instead of complex_sent"
 
 
 rm -rf data/results/sentpairs_nli_*

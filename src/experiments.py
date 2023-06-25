@@ -50,7 +50,7 @@ summ_orig = ['ref'] # ["ref", "gen"]
 metrics = ['ds', 'bs', 'nli']
 nli_components = ["contrast", "factuality"]
 # all_datasets = ['base', 'paraphrase', 'negation', 'similarity', 'selfparaphrase', 'paraphrase_a', 'paraphrase_b', 'paraphrase_synonyms']
-all_datasets = ['base', 'paraphrase', 'negation', 'similarity', 'selfparaphrase','paraphrase_b']
+all_datasets = ['base', 'paraphrase', 'negation', 'similarity', 'selfparaphrase']
 experiments = {
     "paraphrase": {
         "paraphrase_model": "text-davinci-003",
@@ -119,7 +119,7 @@ if 'paraphrase' in experiments and not os.path.isfile("data/combined_data_paraph
 # Generate Sentence-Pair Level NLI Scores if the files don't exist
 for dataset in all_datasets:
     for summ_type in summ_orig:
-        data_path = f"data/sents_data_{dataset}.json"
+        data_path = f"data/sents_data_{dataset}_split_complete.json"
         
         file_path = f"data/results/sentpairs_nli_contrast_{summ_type}_{dataset}.csv"
         if not os.path.isfile(file_path):
@@ -292,7 +292,7 @@ for summ_type in summ_orig:
                 
 # EXPERIMENT 2: PARAPHRASING RESULTS
 experiment_name = 'paraphrase'
-experiment_datasets = ['base', 'paraphrase', 'paraphrase_b']
+experiment_datasets = ['base', 'paraphrase']
 headers = []
 for summ_type in summ_orig:
     records = []
